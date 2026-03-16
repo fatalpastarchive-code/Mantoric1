@@ -1,12 +1,14 @@
 "use client"
 
 import { ReactNode, useState, useEffect, useRef } from "react"
-import { Search, Crown, Landmark, BookOpen, User as UserIcon, X } from "lucide-react"
+import { Search, Crown, Landmark, BookOpen, User as UserIcon, X, Home, Menu } from "lucide-react"
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { CAESAR_CLERK_ID } from "@/lib/constants"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 
 interface ThreeColumnLayoutProps {
   leftSidebar: ReactNode
@@ -29,7 +31,7 @@ interface SearchResult {
     displayName: string
     avatar: string
     rank: string
-    xp: number
+    respectPoints: number
   }>
 }
 
@@ -40,7 +42,9 @@ export function ThreeColumnLayout({
 }: ThreeColumnLayoutProps) {
   const { user } = useUser()
   const router = useRouter()
+  const pathname = usePathname()
   const [searchQuery, setSearchQuery] = useState("")
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [searchResults, setSearchResults] = useState<SearchResult | null>(null)
   const [isSearching, setIsSearching] = useState(false)
   const [showResults, setShowResults] = useState(false)
@@ -118,201 +122,143 @@ export function ThreeColumnLayout({
 
   const totalResults = (searchResults?.articles?.length || 0) + (searchResults?.profiles?.length || 0)
 
+  const isActivePath = (href: string) => {
+    if (href === "/") return pathname === "/"
+    return pathname?.startsWith(href)
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-        <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 lg:px-6">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-10 items-center justify-center">
-              <img src="/logo.png" alt="Mantoric" className="h-10 w-auto object-contain" />
-            </div>
-            <span className="font-heading hidden text-xl font-bold tracking-tight text-foreground sm:block">
-              Mantoric
-            </span>
-          </Link>
-
-          {/* Search Bar - Center */}
-          <div ref={searchRef} className="relative mx-auto flex-1 max-w-xl">
-            <form onSubmit={handleSearchSubmit}>
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                id="global-search"
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => searchResults && setShowResults(true)}
-                placeholder="Search articles, topics, profiles..."
-                className="w-full rounded-lg border border-border/50 bg-secondary/50 py-2 pl-10 pr-10 text-sm font-medium text-foreground placeholder:text-muted-foreground/70 transition-all focus:border-border focus:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring/20"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => { setSearchQuery(""); setShowResults(false); }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </form>
-
-            {/* Search Dropdown */}
-            {showResults && searchResults && (
-              <div className="absolute left-0 right-0 top-full mt-2 max-h-[70vh] overflow-y-auto rounded-xl border border-border/70 bg-card/95 shadow-2xl backdrop-blur-xl">
-                {totalResults === 0 && !isSearching ? (
-                  <div className="p-6 text-center text-sm text-muted-foreground">
-                    No results found for &ldquo;{searchQuery}&rdquo;
-                  </div>
-                ) : (
-                  <div className="p-2">
-                    {/* Articles */}
-                    {searchResults.articles.length > 0 && (
-                      <div>
-                        <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                          <BookOpen className="h-3.5 w-3.5" />
-                          Articles
-                        </div>
-                        {searchResults.articles.map((article) => (
-                          <Link
-                            key={article.id}
-                            href={`/article/${article.slug}`}
-                            onClick={() => setShowResults(false)}
-                            className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent"
-                          >
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-foreground truncate">
-                                {article.title}
-                              </p>
-                              <p className="text-xs text-muted-foreground truncate">
-                                {article.category} · {article.excerpt.slice(0, 60)}...
-                              </p>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Profiles */}
-                    {searchResults.profiles.length > 0 && (
-                      <div className={searchResults.articles.length > 0 ? "mt-2 border-t border-border/50 pt-2" : ""}>
-                        <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                          <UserIcon className="h-3.5 w-3.5" />
-                          Profiles
-                        </div>
-                        {searchResults.profiles.map((profile) => (
-                          <Link
-                            key={profile.id}
-                            href={`/profile/${profile.username}`}
-                            onClick={() => setShowResults(false)}
-                            className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-accent"
-                          >
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent">
-                              {profile.avatar ? (
-                                <img src={profile.avatar} alt={profile.displayName} className="h-full w-full object-cover" />
-                              ) : (
-                                <span className="text-xs font-bold text-foreground">
-                                  {profile.displayName.charAt(0).toUpperCase()}
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-foreground truncate">
-                                {profile.displayName}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                @{profile.username} · {profile.rank} · {profile.xp} XP
-                              </p>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* View all results link */}
-                    {totalResults > 0 && (
-                      <Link
-                        href={`/search?q=${encodeURIComponent(searchQuery)}`}
-                        onClick={() => setShowResults(false)}
-                        className="mt-2 block rounded-lg bg-secondary/50 px-3 py-2.5 text-center text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                      >
-                        View all results →
-                      </Link>
-                    )}
-                  </div>
-                )}
-
-                {isSearching && (
-                  <div className="flex items-center justify-center p-4">
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-3">
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="hidden rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-all hover:bg-accent sm:block">
-                  Sign In
-                </button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <button className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background transition-all hover:bg-foreground/90">
-                  Get Started
-                </button>
-              </SignUpButton>
-            </SignedOut>
-            <SignedIn>
-              <div className="flex items-center gap-4">
-                {/* User Name with Color-Coding */}
-                <span className={`hidden text-sm font-bold md:block ${isCaesar ? "caesar-name" : role === "Senator" ? "text-yellow-500" : "text-foreground"}`}>
-                  {user?.fullName || user?.username}
-                </span>
-
-                {/* Caesar / Senator badge in navbar */}
-                {isCaesar ? (
-                  <Badge className="mantoric-role-badge badge-caesar sm:flex">
-                    <Crown className="mr-1 h-3.5 w-3.5" />
-                    Caesar
-                  </Badge>
-                ) : role === "Senator" ? (
-                  <Badge className="mantoric-role-badge badge-senator sm:flex text-black">
-                    <Landmark className="mr-1 h-3.5 w-3.5" />
-                    Senator
-                  </Badge>
-                ) : null}
-                <UserButton
-                  afterSignOutUrl="/"
-                  appearance={{
-                    elements: {
-                      avatarBox: isCaesar ? "ring-2 ring-[#9333ea] shadow-[0_0_12px_rgba(147,51,234,0.35)]" : "",
-                    }
-                  }}
-                />
-              </div>
-            </SignedIn>
-          </div>
-        </div>
-      </header>
-
       {/* Main Grid Layout */}
-      <div className="mx-auto max-w-7xl px-4 py-6">
-        <div className="flex gap-6">
-          {/* Left Sidebar - Navigation */}
-          <aside className="hidden w-60 shrink-0 lg:block">
-            <div className="sticky top-20">{leftSidebar}</div>
+      <div className="mx-auto max-w-7xl px-0 lg:px-4">
+        <div className="flex justify-center">
+          {/* Left Sidebar - Navigation (Twitter Style) */}
+          <aside className="hidden w-[275px] shrink-0 lg:block h-screen sticky top-0 overflow-y-auto no-scrollbar">
+            <div className="flex flex-col h-full px-2 py-4">
+              <Link href="/" className="mb-6 px-4 flex items-center gap-3">
+                <img src="/logo.png" alt="Mantoric" className="h-8 w-8 object-contain" />
+                <span className="text-xl font-black tracking-tight text-foreground">Mantoric</span>
+              </Link>
+              {leftSidebar}
+            </div>
           </aside>
 
           {/* Center - Main Feed */}
-          <main className="min-w-0 flex-1">{mainContent}</main>
+          <main className="w-full max-w-[600px] min-h-screen bg-background/50">
+            <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-md px-4 py-4 lg:hidden">
+              <div className="flex items-center justify-between">
+                <img src="/logo.png" alt="Mantoric" className="h-6 w-6 object-contain" />
+                <h1 className="text-lg font-bold">Mantoric</h1>
+                <div className="w-6" />
+              </div>
+            </div>
+            {mainContent}
+          </main>
 
           {/* Right Sidebar - Widgets/Stats */}
-          <aside className="hidden w-72 shrink-0 xl:block">
-            <div className="sticky top-20 h-[calc(100vh-5rem)] pb-6">{rightSidebar}</div>
+          <aside className="hidden w-[350px] shrink-0 xl:block px-8 py-4">
+            <div className="sticky top-4 space-y-4">
+              <div ref={searchRef} className="relative">
+                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => searchResults && setShowResults(true)}
+                  placeholder="Search Mantoric"
+                  className="w-full rounded-full bg-secondary/80 py-3 pl-12 pr-4 text-sm focus:ring-1 focus:ring-primary border-none focus-visible:ring-offset-0"
+                />
+                {showResults && searchResults && (
+                  <div className="absolute left-0 right-0 top-full mt-2 max-h-[70vh] overflow-y-auto no-scrollbar rounded-xl bg-card shadow-2xl z-50">
+                    <div className="p-2">
+                       {totalResults === 0 && !isSearching ? (
+                         <div className="p-4 text-center text-sm text-muted-foreground">No results</div>
+                       ) : (
+                         <>
+                           {searchResults.articles.map(a => (
+                             <Link key={a.id} href={`/article/${a.slug}`} className="block p-3 hover:bg-accent rounded-lg">
+                               <p className="text-sm font-bold line-clamp-1">{a.title}</p>
+                             </Link>
+                           ))}
+                           {searchResults.profiles.map(p => (
+                             <Link key={p.id} href={`/profile/${p.username}`} className="flex items-center gap-3 p-3 hover:bg-accent rounded-lg">
+                               <img src={p.avatar} className="h-8 w-8 rounded-full object-cover" />
+                               <div>
+                                 <p className="text-sm font-bold">@{p.username}</p>
+                                 <p className="text-xs text-muted-foreground">{p.rank}</p>
+                               </div>
+                             </Link>
+                           ))}
+                         </>
+                       )}
+                    </div>
+                  </div>
+                )}
+              </div>
+              {rightSidebar}
+            </div>
           </aside>
+        </div>
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="fixed inset-x-0 bottom-0 z-50 bg-background/90 backdrop-blur-xl lg:hidden">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-around">
+          <Link href="/" className="flex flex-col items-center justify-center p-2">
+            <Home className={isActivePath("/") ? "h-6 w-6 text-foreground" : "h-6 w-6 text-muted-foreground"} />
+          </Link>
+          <button onClick={() => router.push('/search')} className="flex flex-col items-center justify-center p-2">
+            <Search className="h-6 w-6 text-muted-foreground" />
+          </button>
+          <SignedIn>
+            <Link href={user?.username ? `/profile/${user.username}` : "/"} className="flex flex-col items-center justify-center p-2">
+              <UserIcon className={pathname?.startsWith("/profile") ? "h-6 w-6 text-foreground" : "h-6 w-6 text-muted-foreground"} />
+            </Link>
+          </SignedIn>
+          <SignedOut>
+             <SignInButton mode="modal">
+               <button className="p-2"><UserIcon className="h-6 w-6 text-muted-foreground" /></button>
+             </SignInButton>
+          </SignedOut>
+          <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+            <button onClick={() => setMobileNavOpen(true)} className="p-2">
+              <Menu className="h-6 w-6 text-muted-foreground" />
+            </button>
+            <SheetContent side="left" className="p-0 w-72">
+               <SheetHeader className="px-4 py-6">
+                 <SheetTitle className="text-left flex items-center gap-3">
+                   <img src="/logo.png" alt="Logo" className="h-6 w-6" />
+                   Menu
+                 </SheetTitle>
+                 <SheetDescription className="text-left">
+                   Navigation and account settings
+                 </SheetDescription>
+               </SheetHeader>
+               
+               <SignedIn>
+                 <div className="px-4 py-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="h-12 w-12 rounded-full overflow-hidden">
+                        <img src={user?.imageUrl} alt={user?.fullName || "User"} className="h-full w-full object-cover" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-bold text-foreground leading-tight">{user?.fullName}</span>
+                        <span className="text-xs text-muted-foreground">@{user?.username}</span>
+                      </div>
+                    </div>
+                    <Link 
+                      href={user?.username ? `/profile/${user.username}` : "/"} 
+                      onClick={() => setMobileNavOpen(false)}
+                      className="text-xs font-bold text-primary hover:underline"
+                    >
+                      View Profile
+                    </Link>
+                 </div>
+               </SignedIn>
+
+               <div className="p-2">{leftSidebar}</div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </div>

@@ -5,13 +5,14 @@ import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { Heart, Clock, Crown, Trash2 } from "lucide-react"
+import { Heart, Clock, Crown, Trash2, Landmark, MessageSquare, ShieldCheck, Sparkles } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CAESAR_CLERK_ID } from "@/lib/constants"
 import { formatDistanceToNow } from "date-fns"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
+import { HoverProfileCard } from "@/components/feed/hover-profile-card"
 
 export interface ArticleCardProps {
   id: string
@@ -20,20 +21,22 @@ export interface ArticleCardProps {
   excerpt: string
   imageUrl: string
   author: {
+    id: string
     clerkId?: string
     username?: string
     name: string
-    avatar?: string
-    bannerUrl?: string
-    bio?: string
+    avatar?: string | null
     rank: string
     xp: number
+    bio?: string
+    isVerifiedExpert?: boolean
+    expertField?: string
   }
+  category: string
   likes: number
   comments: number
   readTime: number
-  createdAt: string
-  category: string
+  createdAt: Date | string
 }
 
 function getRankColor(rank: string): string {
@@ -172,53 +175,23 @@ export function ArticleCard({
   }
 
   return (
-    <Link href={`/article/${slug}`} className="block">
-      <Card className="group overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-border hover:bg-card">
-        {/* Image Container */}
-        <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-secondary via-accent to-secondary/50">
-          {imageUrl ? (
-            <Image
-              src={imageUrl}
-              alt={title}
-              fill
-              unoptimized
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center opacity-30">
-              <span className="font-heading text-4xl font-bold tracking-widest text-[#9333ea]/20 uppercase">Mantoric</span>
-            </div>
-          )}
-          {/* Subtle gradient overlay to ensure text logic is clean */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent pointer-events-none" />
-          
-          <div className="absolute left-4 top-4">
-            <Badge variant="secondary" className="border-0 bg-background/90 px-3 py-1 text-xs font-medium text-foreground backdrop-blur-md">
-              {category}
-            </Badge>
-          </div>
-        </div>
-
-        <CardContent className="p-5">
-
-          {/* Title */}
-          <h3 className="font-heading mb-3 line-clamp-2 text-xl font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-foreground/80">
-            {title}
-          </h3>
-
-          {/* Excerpt */}
-          <p className="mb-5 line-clamp-2 text-sm leading-relaxed text-muted-foreground prose-mantoric">
-            {excerpt}
-          </p>
-
-          {/* Author & Stats Row */}
-          <div className="flex items-center justify-between border-t border-border/50 pt-4">
-            {/* Author Info (clickable → profile) */}
-            <div
-              className="group/author relative flex items-center gap-3 cursor-pointer"
-              onClick={handleAuthorClick}
-            >
-              <div className={`relative h-10 w-10 overflow-hidden rounded-full bg-accent ring-2 ${authorIsCaesar ? "ring-[#9333ea]" : "ring-border/50"}`}>
+    <Link href={`/article/${slug}`} className="block hover:bg-zinc-950/50 transition-colors">
+      <div className="flex flex-col gap-3 p-4">
+        {/* Author Header */}
+        <div className="flex items-center justify-between">
+          <HoverProfileCard author={{
+            id: author.id,
+            name: author.name,
+            username: author.username || 'user',
+            avatar: author.avatar || null,
+            rank: author.rank,
+            xp: author.xp,
+            isVerifiedExpert: author.isVerifiedExpert,
+            expertField: author.expertField,
+            bio: author.bio
+          }}>
+            <div className="flex items-center gap-2 cursor-pointer" onClick={handleAuthorClick}>
+              <div className={`relative h-10 w-10 overflow-hidden rounded-full bg-accent`}>
                 {author.avatar ? (
                   <Image
                     src={author.avatar}
@@ -233,103 +206,81 @@ export function ArticleCard({
                   </div>
                 )}
               </div>
-              <div className="flex flex-col gap-0.5">
-                <span className={`text-sm font-semibold ${authorIsCaesar ? "caesar-name" : "text-foreground"}`}>
-                  {author.name}
-                </span>
-                <div className="flex items-center gap-2">
-                  <Badge
-                    className={`mantoric-role-badge font-bold uppercase tracking-wide border-0 ${getRankColor(author.rank)}`}
-                  >
-                    {authorIsCaesar && <Crown className="mr-1 h-3 w-3" />}
-                    {authorIsCaesar ? "Caesar" : author.rank}
-                  </Badge>
-                  <span suppressHydrationWarning className="text-[11px] tabular-nums text-muted-foreground flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {formattedDate}
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1">
+                  <span className={`text-sm font-bold ${authorIsCaesar ? "caesar-name" : "text-foreground"}`}>
+                    {author.name}
                   </span>
-                </div>
-              </div>
-              
-              {/* Hover Box Info */}
-              <div className="pointer-events-none absolute bottom-12 left-0 hidden w-72 z-20 rounded-xl border border-border/70 bg-card/95 shadow-2xl backdrop-blur-xl group-hover/author:block">
-                <div className="relative h-20 w-full overflow-hidden rounded-t-xl bg-gradient-to-br from-zinc-900 via-zinc-950 to-black">
-                  {author.bannerUrl && (
-                    <Image
-                      src={author.bannerUrl}
-                      alt={`${author.name} banner`}
-                      fill
-                      unoptimized
-                      className="object-cover opacity-90"
-                    />
-                  )}
-                </div>
-                <div className="flex items-center gap-3 px-3 pb-3 pt-2">
-                  <div className={`relative -mt-8 h-12 w-12 overflow-hidden rounded-full border-2 border-background bg-accent ${authorIsCaesar ? "ring-2 ring-[#9333ea]" : ""}`}>
-                    {author.avatar ? (
-                      <Image
-                        src={author.avatar}
-                        alt={author.name}
-                        fill
-                        unoptimized
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-foreground">
-                        {author.name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-col">
-                    <span className={`text-sm font-semibold ${authorIsCaesar ? "caesar-name" : "text-foreground"}`}>
-                      {author.name}
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      <Badge className={`mantoric-role-badge h-4 px-1.5 text-[9px] ${getRankColor(author.rank)}`}>
-                        {authorIsCaesar ? <Crown className="mr-1 h-2.5 w-2.5" /> : author.rank.toLowerCase() === "senator" ? <Landmark className="mr-1 h-2.5 w-2.5" /> : null}
-                        {author.rank}
-                      </Badge>
-                      <span className="text-[11px] text-muted-foreground">
-                        {author.xp.toLocaleString()} XP
-                      </span>
+                  {author.isVerifiedExpert && (
+                    <div className="text-primary">
+                      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current">
+                        <path d="M22.5 12.5c0-1.58-.88-2.95-2.18-3.66.15-.44.23-.91.23-1.4 0-2.25-1.83-4.07-4.07-4.07-.49 0-.96.08-1.41.23-.71-1.3-2.08-2.18-3.66-2.18s-2.95.88-3.66 2.18c-.44-.15-.91-.23-1.4-.23-2.25 0-4.07 1.83-4.07 4.07 0 .49.08.96.23 1.41-1.3.71-2.18 2.08-2.18 3.66s.88 2.95 2.18 3.66c-.15.44-.23.91-.23 1.4 0 2.25 1.83 4.07 4.07 4.07.49 0 .96-.08 1.41-.23.71 1.3 2.08 2.18 3.66 2.18s2.95-.88 3.66-2.18c.44.15.91.23 1.4.23 2.25 0 4.07-1.83 4.07-4.07 0-.49-.08-.96-.23-1.41 1.3-.71 2.18-2.08 2.18-3.66zM10 17l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                      </svg>
                     </div>
-                  </div>
+                  )}
+                  <Badge className={`mantoric-role-badge h-4 px-1 text-[9px] uppercase font-bold ${getRankColor(author.rank)} border-none shadow-none`}>
+                    {author.rank}
+                  </Badge>
                 </div>
+                <span className="text-xs text-muted-foreground">@{author.username || 'user'} · {formattedDate}</span>
               </div>
+            </div>
+          </HoverProfileCard>
+          <Badge variant="outline" className="text-[10px] opacity-50 font-medium border-none">{category}</Badge>
+        </div>
+
+        {/* Content Section */}
+        <div className="flex flex-col gap-1.5">
+          <h3 className="text-[19px] font-extrabold leading-tight text-foreground tracking-tight">
+            {title}
+          </h3>
+          <p className="text-[15px] leading-normal text-muted-foreground/90 line-clamp-2">
+            {excerpt}
+          </p>
+        </div>
+
+        {/* Full-width Image */}
+        {imageUrl && (
+          <div className="relative aspect-[1.91/1] w-full overflow-hidden rounded-2xl">
+            <Image
+              src={imageUrl}
+              alt={title}
+              fill
+              unoptimized
+              className="object-cover"
+            />
+          </div>
+        )}
+
+        {/* Stats Row */}
+        <div className="flex items-center justify-between mt-1 text-muted-foreground/60">
+          <div className="flex items-center gap-8">
+            <button 
+              onClick={handleRespect}
+              className="flex items-center gap-2 transition-colors group/respect hover:text-red-500"
+            >
+              <Heart className={`h-[18px] w-[18px] ${isRespected ? "fill-red-500 text-red-500" : ""}`} />
+              <span className={`text-xs font-medium ${isRespected ? "text-red-500" : ""}`}>{localLikes}</span>
+            </button>
+            
+            <div className="flex items-center gap-2 hover:text-blue-500 cursor-pointer transition-colors">
+              <MessageSquare className="h-[18px] w-[18px]" />
+              <span className="text-xs font-medium">{comments}</span>
             </div>
 
-            {/* Stats */}
-            <div className="flex items-center gap-4 text-muted-foreground z-10 relative">
-              {user?.id === CAESAR_CLERK_ID && (
-                <button
-                  onClick={handleDelete}
-                  className="flex items-center justify-center p-1.5 transition-colors text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-md"
-                  title="Secure Delete"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              )}
-              
-              <button 
-                onClick={handleRespect}
-                disabled={isLoading}
-                className="flex items-center gap-1.5 transition-colors group/respect focus:outline-none"
-              >
-                <motion.div
-                  whileTap={{ scale: 0.8 }}
-                  animate={isRespected ? { scale: [1, 1.4, 1] } : {}}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Heart 
-                    className={`h-5 w-5 transition-colors duration-300 ${isRespected ? "fill-red-500 text-red-500" : "group-hover/respect:text-red-400"}`} 
-                  />
-                </motion.div>
-                <span className={`text-sm tabular-nums font-medium ${isRespected ? "text-red-500" : ""}`}>{localLikes}</span>
-              </button>
+            <div className="flex items-center gap-2">
+              <Clock className="h-[18px] w-[18px]" />
+              <span className="text-xs font-medium">{readTime} min</span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+
+          {user?.id === CAESAR_CLERK_ID && (
+            <button onClick={handleDelete} className="hover:text-red-500 transition-colors p-1">
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </div>
     </Link>
   )
 }

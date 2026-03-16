@@ -38,6 +38,8 @@ export const metadata: Metadata = {
 import { ClerkProvider } from "@clerk/nextjs"
 import { dark } from "@clerk/themes"
 import { Toaster } from "@/components/ui/sonner"
+import { ThemeProvider } from "@/context/theme-context"
+import { cn } from "@/lib/utils"
 
 export const viewport: Viewport = {
   themeColor: '#000000',
@@ -45,18 +47,26 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.variable} ${spaceGrotesk.variable} ${cormorant.variable} font-sans antialiased bg-background text-foreground`}>
-        <ClerkProvider appearance={{ baseTheme: dark, elements: { rootBox: "flex justify-center items-center" } }}>
-          {children}
-        </ClerkProvider>
-        <Toaster />
-        <Analytics />
-      </body>
-    </html>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+        variables: {
+          colorPrimary: "#9333ea",
+        },
+      }}
+    >
+      <html lang="en" suppressHydrationWarning>
+        <body className={cn(inter.variable, "min-h-screen font-sans antialiased")}>
+          <ThemeProvider>
+            {children}
+            <Toaster position="top-center" richColors />
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }

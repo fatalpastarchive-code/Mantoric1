@@ -11,6 +11,7 @@ interface EditProfileDialogProps {
   bio: string | null
   bannerUrl: string | null
   avatar: string | null
+  trigger?: React.ReactNode
 }
 
 export function EditProfileDialog(props: EditProfileDialogProps) {
@@ -48,7 +49,6 @@ export function EditProfileDialog(props: EditProfileDialogProps) {
       }
 
       setOpen(false)
-      // For simplicity, reload the page so server-side data is fresh
       window.location.reload()
     } catch {
       setError("Unexpected error while updating profile.")
@@ -60,9 +60,11 @@ export function EditProfileDialog(props: EditProfileDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="bg-background/60 backdrop-blur-md border-border/60 hover:bg-background/80">
-          Bannerı Değiştir
-        </Button>
+        {props.trigger || (
+          <Button variant="outline" size="sm" className="bg-background/60 backdrop-blur-md border-border/60 hover:bg-background/80">
+            Edit Profile
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

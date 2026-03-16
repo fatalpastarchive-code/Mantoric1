@@ -1,6 +1,8 @@
 "use client"
 
 import Link from "next/link"
+import { useUser } from "@clerk/nextjs"
+import { useEffect, useState } from "react"
 import {
   Home,
   Flame,
@@ -15,9 +17,20 @@ import {
   Brain,
   Cpu,
   Coffee,
+  Crown,
+  Landmark,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CATEGORIES } from "@/lib/constants"
+import { Badge } from "@/components/ui/badge"
+import { PrestigeBox } from "./prestige-box"
+
+interface UserStats {
+  rank: string
+  reputation: number
+  badgeLevel: "Newbie" | "Copper" | "Silver" | "Gold" | "Diamond"
+  respectPoints: number
+}
 
 interface NavItem {
   label: string
@@ -52,10 +65,69 @@ interface LeftSidebarProps {
 }
 
 export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
+  const { user, isSignedIn } = useUser()
+  const [stats, setStats] = useState<UserStats | null>(null)
+
+  useEffect(() => {
+    if (isSignedIn && user?.username) {
+      fetch(`/api/user/profile?username=${user.username}`)
+        .then(async res => {
+          const contentType = res.headers.get("content-type")
+          if (!contentType || !contentType.includes("application/json")) {
+            const text = await res.text()
+            console.error("[DEBUG] Profile API non-JSON:", text.substring(0, 100))
+            throw new Error("Non-JSON response")
+          }
+          return res.json()
+        })
+        .then(data => {
+          if (data.user) {
+            setStats({
+              rank: data.user.rank || "Newbie",
+              reputation: data.user.respectPoints || 0,
+              badgeLevel: data.user.badgeLevel || "Newbie",
+              respectPoints: data.user.respectPoints || 0
+            })
+          }
+        })
+        .catch(err => console.error("Failed to fetch sidebar stats:", err))
+    }
+  }, [isSignedIn, user?.username])
+
+  const getRankIcon = (rank: string) => {
+    switch (rank.toLowerCase()) {
+      case "caesar": return <Crown className="h-3 w-3 mr-1" />
+      case "senator": return <Landmark className="h-3 w-3 mr-1" />
+      default: return null
+    }
+  }
+
+  const getRankColor = (rank: string) => {
+    switch (rank.toLowerCase()) {
+      case "caesar": return "badge-caesar"
+      case "senator": return "badge-senator text-black"
+      case "diamond": return "badge-diamond"
+      case "platinum": return "badge-platinum"
+      case "gold": return "badge-gold"
+      case "silver": return "badge-silver"
+      case "bronze": return "badge-bronze"
+      default: return "bg-secondary text-muted-foreground"
+    }
+  }
+
   return (
-    <nav className="flex flex-col gap-6">
+    <nav className="flex flex-col h-full gap-6 w-full overflow-y-auto no-scrollbar">
+      {/* Prestige Box - Modern Profile Card */}
+      {isSignedIn && stats && (
+        <PrestigeBox
+          badgeLevel={stats.badgeLevel}
+          respectPoints={stats.respectPoints}
+          bannerUrl={user?.publicMetadata?.banner as string}
+        />
+      )}
+
       {/* Main Navigation */}
-      <div className="flex flex-col gap-0.5">
+      <div className="flex flex-col gap-1 w-full">
         {navItems.map((item) => {
           const isActive = !activeCategory && item.href === "/"
           return (
@@ -63,25 +135,25 @@ export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
               key={item.label}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                "flex items-center gap-4 rounded-full px-4 py-3 text-[17px] font-medium transition-all duration-200 w-fit max-w-full",
                 isActive
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  ? "text-foreground font-bold"
+                  : "text-foreground hover:bg-accent"
               )}
             >
-              <item.icon className="h-5 w-5" />
-              {item.label}
+              <item.icon className={cn("h-6 w-6 shrink-0", isActive && "stroke-[3px]")} />
+              <span className="truncate">{item.label}</span>
             </Link>
           )
         })}
       </div>
 
       {/* Categories */}
-      <div className="flex flex-col gap-2">
-        <h3 className="font-heading px-3 text-[11px] font-bold uppercase tracking-widest text-muted-foreground/70">
+      <div className="flex flex-col gap-1 mt-4 w-full">
+        <h3 className="px-4 text-[11px] font-bold uppercase tracking-widest text-muted-foreground/50 mb-2">
           Categories
         </h3>
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-1 w-full">
           {CATEGORIES.map((category) => {
             const Icon = categoryIcons[category.slug] || Sparkles
             const isActive = activeCategory === category.slug
@@ -90,32 +162,18 @@ export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
                 key={category.id}
                 href={`/category/${category.slug}`}
                 className={cn(
-                  "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+                  "flex items-center gap-4 rounded-full px-4 py-2 text-[15px] font-medium transition-all duration-200 w-fit max-w-full",
                   isActive
-                    ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"
+                    ? "bg-accent text-foreground font-bold"
                     : "text-muted-foreground hover:bg-accent hover:text-foreground"
                 )}
               >
-                <Icon className="h-4 w-4" />
-                {category.label}
+                <Icon className="h-5 w-5 shrink-0" />
+                <span className="truncate">{category.label}</span>
               </Link>
             )
           })}
         </div>
-      </div>
-
-      {/* Bottom Navigation */}
-      <div className="mt-auto flex flex-col gap-1 border-t border-border pt-4">
-        {bottomNavItems.map((item) => (
-          <Link
-            key={item.label}
-            href={item.href}
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          >
-            <item.icon className="h-5 w-5" />
-            {item.label}
-          </Link>
-        ))}
       </div>
     </nav>
   )

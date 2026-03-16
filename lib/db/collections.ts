@@ -6,7 +6,18 @@
  */
 import type { Collection } from "mongodb"
 import { getDb } from "./mongodb"
-import type { User, Article, Comment, Like, ActivityLog, Follow } from "./schema"
+import type { 
+  User, 
+  Article, 
+  Comment, 
+  Like, 
+  ActivityLog, 
+  Follow, 
+  Rating, 
+  QuizAttempt, 
+  UserReview,
+  Quiz
+} from "./schema"
 
 export async function users(): Promise<Collection<User>> {
   const db = await getDb()
@@ -36,4 +47,36 @@ export async function likes(): Promise<Collection<Like>> {
 export async function activityLogs(): Promise<Collection<ActivityLog>> {
   const db = await getDb()
   return db.collection<ActivityLog>("activityLogs")
+}
+
+export async function ratings(): Promise<Collection<Rating>> {
+  const db = await getDb()
+  return db.collection<Rating>("ratings")
+}
+
+export async function quizzes(): Promise<Collection<Quiz>> {
+  const db = await getDb()
+  return db.collection<Quiz>("quizzes")
+}
+
+export async function quizAttempts(): Promise<Collection<QuizAttempt>> {
+  const db = await getDb()
+  return db.collection<QuizAttempt>("quizAttempts")
+}
+
+export async function userReviews(): Promise<Collection<UserReview>> {
+  const db = await getDb()
+  return db.collection<UserReview>("userReviews")
+}
+
+export interface RespectRecord {
+  _id?: string
+  giverId: string
+  receiverId: string
+  givenAt: Date
+}
+
+export async function respects(): Promise<Collection<RespectRecord>> {
+  const db = await getDb()
+  return db.collection<RespectRecord>("respects")
 }

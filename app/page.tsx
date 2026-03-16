@@ -3,8 +3,8 @@ import { SLUG_TO_LABEL, CATEGORIES } from "@/lib/constants"
 import { ThreeColumnLayout } from "@/components/layout/three-column-layout"
 import { LeftSidebar } from "@/components/sidebar/left-sidebar"
 import { RightSidebar } from "@/components/sidebar/right-sidebar"
-import { ArticleCard } from "@/components/feed/article-card"
 import { ArticleComposer } from "@/components/feed/article-composer"
+import { InfiniteFeed } from "@/components/feed/infinite-feed"
 
 interface HomeProps {
   searchParams: Promise<{ category?: string }>
@@ -29,27 +29,24 @@ export default async function Home({ searchParams }: HomeProps) {
     <ThreeColumnLayout
       leftSidebar={<LeftSidebar activeCategory={categorySlug} />}
       mainContent={
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col">
           {/* Article Composer */}
-          <ArticleComposer />
+          <div className="border-b border-border/50">
+            <ArticleComposer />
+          </div>
 
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 border-b border-border/50 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-                {activeCategory ? activeCategory.label : "Latest Articles"}
+              <h1 className="text-xl font-bold tracking-tight text-foreground">
+                {activeCategory ? activeCategory.label : "Home"}
               </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {activeCategory
-                  ? `Showing articles in ${activeCategory.label}`
-                  : "Explore insights from the community"}
-              </p>
             </div>
             {activeCategory && (
               <a
                 href="/"
-                className="rounded-lg border border-border/50 bg-secondary/50 px-4 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
+                className="rounded-full border border-border/50 bg-secondary/50 px-4 py-1.5 text-xs font-bold text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
               >
-                ← All Articles
+                ← All
               </a>
             )}
           </div>
@@ -71,11 +68,10 @@ export default async function Home({ searchParams }: HomeProps) {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col gap-5">
-              {articles.map((article) => (
-                <ArticleCard key={article.id} {...article} />
-              ))}
-            </div>
+            <InfiniteFeed 
+              initialArticles={articles as any} 
+              category={categoryLabel}
+            />
           )}
         </div>
       }

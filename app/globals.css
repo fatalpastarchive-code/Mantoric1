@@ -3,47 +3,84 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Dark-first theme for Mantoric - True Black (#000000) */
+/* ==============================
+   Borderless Minimalist Dark
+   Pure Black #000000 Base
+   ============================== */
+
 :root {
+  /* Pure black theme */
   --background: #000000;
   --foreground: #fafafa;
   --card: #0a0a0a;
   --card-foreground: #fafafa;
   --popover: #0a0a0a;
   --popover-foreground: #fafafa;
-  --primary: #fafafa;
-  --primary-foreground: #000000;
+  --primary: #e5e5e5;
+  --primary-foreground: #0a0a0a;
   --secondary: #1a1a1a;
   --secondary-foreground: #fafafa;
   --muted: #1a1a1a;
-  --muted-foreground: #a1a1a1;
-  --accent: #2a2a2a;
+  --muted-foreground: #a3a3a3;
+  --accent: #262626;
   --accent-foreground: #fafafa;
-  --destructive: #ef4444;
+  --destructive: #dc2626;
   --destructive-foreground: #fafafa;
-  --border: #262626;
-  --input: #262626;
+  --border: transparent;
+  --input: #1a1a1a;
   --ring: #525252;
-  --chart-1: #3b82f6;
-  --chart-2: #10b981;
-  --chart-3: #f59e0b;
-  --chart-4: #ef4444;
-  --chart-5: #8b5cf6;
-  --radius: 0.5rem;
-  --sidebar: #0a0a0a;
-  --sidebar-foreground: #fafafa;
-  --sidebar-primary: #fafafa;
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #1a1a1a;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #262626;
-  --sidebar-ring: #525252;
-  /* Custom colors for gamification */
-  --xp-bronze: #cd7f32;
-  --xp-silver: #c0c0c0;
-  --xp-gold: #ffd700;
-  --xp-platinum: #e5e4e2;
-  --xp-diamond: #b9f2ff;
+  --radius: 0.75rem;
+  
+  /* Badge Colors - New System */
+  --badge-newbie: #525252;
+  --badge-copper: #b87333;
+  --badge-silver: #c0c0c0;
+  --badge-gold: #ffd700;
+  --badge-diamond: #b9f2ff;
+  
+  /* Glow Effects */
+  --glow-newbie: rgba(82, 82, 82, 0.4);
+  --glow-copper: rgba(184, 115, 51, 0.4);
+  --glow-silver: rgba(192, 192, 192, 0.4);
+  --glow-gold: rgba(255, 215, 0, 0.4);
+  --glow-diamond: rgba(185, 242, 255, 0.4);
+  
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 .dark {
@@ -53,18 +90,18 @@
   --card-foreground: #fafafa;
   --popover: #0a0a0a;
   --popover-foreground: #fafafa;
-  --primary: #fafafa;
-  --primary-foreground: #000000;
+  --primary: #e5e5e5;
+  --primary-foreground: #0a0a0a;
   --secondary: #1a1a1a;
   --secondary-foreground: #fafafa;
   --muted: #1a1a1a;
-  --muted-foreground: #a1a1a1;
-  --accent: #2a2a2a;
+  --muted-foreground: #a3a3a3;
+  --accent: #262626;
   --accent-foreground: #fafafa;
   --destructive: #ef4444;
   --destructive-foreground: #fafafa;
-  --border: #262626;
-  --input: #262626;
+  --border: transparent;
+  --input: #1a1a1a;
   --ring: #525252;
   --chart-1: #3b82f6;
   --chart-2: #10b981;
@@ -77,7 +114,7 @@
   --sidebar-primary-foreground: #000000;
   --sidebar-accent: #1a1a1a;
   --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #262626;
+  --sidebar-border: transparent;
   --sidebar-ring: #525252;
 }
 
@@ -197,7 +234,6 @@
     border-radius: 0.75rem;
     margin: 2.5rem 0;
     box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
-    border: 1px solid var(--border);
   }
   .prose-mantoric strong {
     color: var(--foreground);
@@ -356,3 +392,102 @@
   pointer-events: none;
 }
 
+/* ==============================
+   Borderless Design Utilities
+   ============================== */
+
+/* Remove all borders */
+.borderless * {
+  border: none !important;
+}
+
+/* Card with subtle shadow instead of border */
+.card-shadow {
+  background: var(--card);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Subtle divider using gradient */
+.divider-gradient {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+}
+
+/* Glow effects for badges */
+.glow-newbie { box-shadow: 0 0 15px var(--glow-newbie); }
+.glow-copper { box-shadow: 0 0 15px var(--glow-copper); }
+.glow-silver { box-shadow: 0 0 15px var(--glow-silver); }
+.glow-gold { box-shadow: 0 0 15px var(--glow-gold); }
+.glow-diamond { box-shadow: 0 0 15px var(--glow-diamond); }
+
+/* Avatar glow animation */
+@keyframes avatar-pulse {
+  0%, 100% { box-shadow: 0 0 5px currentColor; }
+  50% { box-shadow: 0 0 20px currentColor, 0 0 40px currentColor; }
+}
+
+.avatar-glow {
+  animation: avatar-pulse 3s ease-in-out infinite;
+}
+
+/* Respect icon glow */
+@keyframes respect-glow {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 215, 0, 0.6)); }
+  50% { filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.9)); }
+}
+
+.respect-icon {
+  animation: respect-glow 2s ease-in-out infinite;
+}
+
+/* Gradient text utilities */
+.gradient-gold {
+  background: linear-gradient(135deg, #ffd700 0%, #ffb700 50%, #ffd700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-silver {
+  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 50%, #c0c0c0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-copper {
+  background: linear-gradient(135deg, #b87333 0%, #d4956a 50%, #b87333 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-diamond {
+  background: linear-gradient(135deg, #b9f2ff 0%, #ffffff 50%, #b9f2ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Smooth image loading */
+.image-lazy {
+  transition: opacity 0.3s ease;
+}
+
+.image-lazy.loading {
+  opacity: 0;
+}
+
+.image-lazy.loaded {
+  opacity: 1;
+}
+
+/* Hide scrollbar for left sidebar while keeping functionality */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}

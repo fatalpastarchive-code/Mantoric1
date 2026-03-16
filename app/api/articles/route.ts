@@ -51,16 +51,14 @@ export async function POST(req: NextRequest) {
 
     const col = await articles()
 
-    const cleanedExcerpt =
+    const finalExcerpt =
       typeof excerpt === "string" && excerpt.trim()
-        ? excerpt.trim().replace(/\s+/g, " ").slice(0, 220)
+        ? excerpt.trim().slice(0, 150)
         : content
             .replace(/!\[.*?\]\(.*?\)/g, "")
             .replace(/\n/g, " ")
             .trim()
-            .slice(0, 220)
-
-    const finalExcerpt = cleanedExcerpt ? `${cleanedExcerpt}...` : "..."
+            .slice(0, 150)
 
     const doc: Article = {
       _id: uniqueSlug,
@@ -78,6 +76,8 @@ export async function POST(req: NextRequest) {
       likesCount: 0,
       commentsCount: 0,
       readTime: Math.max(1, Math.round(content.split(/\s+/).length / 200)),
+      averageRating: 0,
+      ratingsCount: 0,
       status: "published",
       isFeatured: false,
       createdAt: now,
@@ -122,8 +122,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const category = searchParams.get("category") || undefined
     const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit") || "20")))
+    const skip = Math.max(0, Number(searchParams.get("skip") || "0"))
 
-    const enriched = await fetchArticles({ category, limit })
+    const enriched = await fetchArticles({ category, limit, skip })
 
     return NextResponse.json({ articles: enriched })
   } catch (error) {

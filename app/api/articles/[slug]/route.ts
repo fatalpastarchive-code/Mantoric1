@@ -7,7 +7,7 @@ import { ObjectId } from "mongodb"
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -32,9 +32,9 @@ export async function DELETE(
       )
     }
 
-    const { id } = await params
+    const { slug } = await params
     
-    if (!id) {
+    if (!slug) {
       return NextResponse.json({ error: "Article ID is required" }, { status: 400 })
     }
 
@@ -43,10 +43,10 @@ export async function DELETE(
     // We try catching both ObjectId and string ID formats since slugs are currently used as _id sometimes
     let result
     try {
-      result = await col.deleteOne({ _id: new ObjectId(id) as any })
+      result = await col.deleteOne({ _id: new ObjectId(slug) as any })
     } catch {
       // Fallback to string deletion
-      result = await col.deleteOne({ _id: id as any })
+      result = await col.deleteOne({ _id: slug as any })
     }
 
     if (result.deletedCount === 0) {
@@ -55,7 +55,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, message: "Article securely deleted." })
   } catch (error) {
-    console.error("[DELETE /api/articles/[id]]", error)
+    console.error("[DELETE /api/articles/[slug]]", error)
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

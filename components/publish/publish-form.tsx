@@ -35,7 +35,7 @@ export function PublishForm({ defaultAuthorName }: PublishFormProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const excerptMaxWords = 30
+  const excerptMaxChars = 150
   
   const initialTitle = searchParams.get("title") || ""
   const initialCategory = searchParams.get("category") || ""
@@ -49,8 +49,8 @@ export function PublishForm({ defaultAuthorName }: PublishFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [view, setView] = useState<"edit" | "preview">("edit")
 
-  const excerptWords = excerpt.trim() ? excerpt.trim().split(/\s+/).length : 0
-  const excerptRemaining = Math.max(0, excerptMaxWords - excerptWords)
+  const excerptChars = excerpt.length
+  const excerptRemaining = Math.max(0, excerptMaxChars - excerptChars)
 
   // Toolbar actions
   const insertText = (before: string, after: string = "") => {
@@ -164,10 +164,10 @@ export function PublishForm({ defaultAuthorName }: PublishFormProps) {
                   className="h-11 border-border/50 bg-background/50"
                 />
               </div>
-              <div className="space-y-2 md:col-span-2">
+          <div className="space-y-2 md:col-span-2">
                 <div className="flex items-center justify-between gap-3">
-                  <Label htmlFor="excerpt" className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Description (Homepage Excerpt)</Label>
-                  <span className="text-xs text-muted-foreground">{excerptRemaining} words left</span>
+                  <Label htmlFor="excerpt" className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Short Description (Summary)</Label>
+                  <span className="text-xs text-muted-foreground">{excerptRemaining} characters</span>
                 </div>
                 <textarea
                   id="excerpt"
@@ -175,15 +175,15 @@ export function PublishForm({ defaultAuthorName }: PublishFormProps) {
                   value={excerpt}
                   onChange={(e) => {
                     const next = e.target.value
-                    const words = next.trim() ? next.trim().split(/\s+/) : []
-                    if (words.length <= excerptMaxWords) {
+                    if (next.length <= excerptMaxChars) {
                       setExcerpt(next)
                       return
                     }
-                    setExcerpt(words.slice(0, excerptMaxWords).join(" "))
+                    setExcerpt(next.slice(0, excerptMaxChars))
                   }}
-                  placeholder="Short summary shown under the title on the homepage"
+                  placeholder="A short summary to be displayed under the title on home and profile pages (max 150 characters)"
                   className="w-full resize-none rounded-lg border border-border/50 bg-background/30 p-3 text-sm leading-relaxed outline-none transition-all focus:border-emerald-500/30 focus:bg-background/50"
+                  required
                 />
               </div>
               <div className="space-y-2 md:col-span-2">
