@@ -15,15 +15,37 @@ export async function GET(req: NextRequest) {
       query.category = { $regex: new RegExp(`^${category}$`, "i") }
     }
 
-    // Get trending articles (sorted by views and likes)
+    // Get trending articles (sorted by likes and published within last 7 days)
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+
     const trendingArticles = await articlesCol
-      .find(query)
-      .sort({ views: -1, likesCount: -1, publishedAt: -1 })
+      .find({
+        ...query,
+        publishedAt: { $gte: sevenDaysAgo }
+      })
+      .sort({ likesCount: -1, views: -1 })
       .limit(limit)
       .toArray()
 
+    // Fallback to all-time if no recent articles
+    let finalArticles = trendingArticles
+    if (trendingArticles.length < limit) {
+      const remainingLimit = limit - trendingArticles.length
+      const excludeIds = trendingArticles.map(a => a._id)
+      const fallbackArticles = await articlesCol
+        .find({
+          ...query,
+          _id: { $nin: excludeIds }
+        })
+        .sort({ likesCount: -1, views: -1 })
+        .limit(remainingLimit)
+        .toArray()
+      finalArticles = [...trendingArticles, ...fallbackArticles]
+    }
+
     // Enrich with author info
-    const authorIds = [...new Set(trendingArticles.map(a => a.authorId).filter(Boolean))]
+    const authorIds = [...new Set(finalArticles.map(a => a.authorId).filter(Boolean))]
     const usersCol = await users()
     const authorDocs = await usersCol
       .find({ $or: [{ _id: { $in: authorIds as any[] } }, { clerkId: { $in: authorIds } }] })
@@ -35,7 +57,7 @@ export async function GET(req: NextRequest) {
       if (u.clerkId) userById.set(u.clerkId, u)
     }
 
-    const enrichedArticles = trendingArticles.map(a => {
+    const enrichedArticles = finalArticles.map(a => {
       const u = userById.get(a.authorId)
       return {
         id: String(a._id),

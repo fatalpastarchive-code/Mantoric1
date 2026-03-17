@@ -45,6 +45,8 @@ export const viewport: Viewport = {
   themeColor: '#000000',
 }
 
+import { RespectNotification } from "@/components/notifications/respect-notification"
+
 export default function RootLayout({
   children,
 }: {
@@ -60,10 +62,11 @@ export default function RootLayout({
       }}
     >
       <html lang="en" suppressHydrationWarning>
-        <body className={cn(inter.variable, "min-h-screen font-sans antialiased")}>
+        <body className={cn(inter.variable, "min-h-screen font-sans antialiased bg-black")}>
           <ThemeProvider>
             {children}
-            <Toaster position="top-center" richColors />
+            <RespectNotification />
+            <Toaster position="top-right" richColors />
           </ThemeProvider>
         </body>
       </html>

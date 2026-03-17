@@ -154,16 +154,8 @@ export function ArticleContent({ article, author, isOwnArticle }: ArticleContent
       {/* Reading Progress Bar - Fixed at top */}
       <ReadingProgress 
         color="bg-gradient-to-r from-primary via-purple-500 to-emerald-500"
-        height={3}
+        height={2}
       />
-
-      {/* XP Value Badge */}
-      <div className="fixed top-20 right-4 z-50 hidden lg:block">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-card/90 backdrop-blur-md border border-border/50 shadow-lg">
-          <Sparkles className="h-4 w-4 text-yellow-500" />
-          <span className="text-sm font-bold">+{article.readTime * 5} XP</span>
-        </div>
-      </div>
 
       <div className="flex flex-col pb-20 max-w-2xl mx-auto w-full">
         <div className="flex items-center justify-between mb-8">
@@ -186,9 +178,9 @@ export function ArticleContent({ article, author, isOwnArticle }: ArticleContent
               <Clock className="h-3.5 w-3.5" />
               <span>{article.readTime} min read</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-yellow-500/80 font-medium">
-              <Trophy className="h-3.5 w-3.5" />
-              <span>{article.readTime * 5} XP</span>
+            <div className="flex items-center gap-1.5 text-xs text-purple-400 font-medium">
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>+{article.readTime * 5} Respect</span>
             </div>
           </div>
 

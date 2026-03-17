@@ -5,13 +5,14 @@ import { useUser } from "@clerk/nextjs"
 import Link from "next/link"
 import Image from "next/image"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Award, Sparkles } from "lucide-react"
+import { Award, Sparkles, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface PrestigeBoxProps {
-  badgeLevel: "Newbie" | "Copper" | "Silver" | "Gold" | "Diamond"
-  respectPoints: number
+  badgeLevel?: "Newbie" | "Copper" | "Silver" | "Gold" | "Diamond"
+  respectPoints?: number
   bannerUrl?: string
+  isFloating?: boolean
 }
 
 const badgeColors = {
@@ -30,9 +31,33 @@ const badgeGlows = {
   Diamond: "shadow-[0_0_15px_rgba(185,242,255,0.4)]",
 }
 
-export function PrestigeBox({ badgeLevel, respectPoints, bannerUrl }: PrestigeBoxProps) {
+export function PrestigeBox({ badgeLevel: initialBadgeLevel, respectPoints: initialRespectPoints, bannerUrl: initialBannerUrl, isFloating }: PrestigeBoxProps) {
   const { user, isLoaded } = useUser()
   const [isHovered, setIsHovered] = useState(false)
+  const [stats, setStats] = useState({
+    badgeLevel: initialBadgeLevel || "Newbie",
+    respectPoints: initialRespectPoints || 0,
+    streak: 0,
+    bannerUrl: initialBannerUrl || (user?.publicMetadata?.banner as string) || "/default-banner.jpg"
+  })
+
+  useEffect(() => {
+    if (isFloating && isLoaded && user?.username) {
+      fetch(`/api/user/profile?username=${user.username}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.user) {
+            setStats({
+              badgeLevel: data.user.badgeLevel || "Newbie",
+              respectPoints: data.user.respectPoints || 0,
+              streak: data.user.streak || 0,
+              bannerUrl: (user?.publicMetadata?.banner as string) || "/default-banner.jpg"
+            })
+          }
+        })
+        .catch(err => console.error("Failed to fetch floating profile stats:", err))
+    }
+  }, [isFloating, isLoaded, user?.username, user?.publicMetadata?.banner])
 
   if (!isLoaded) {
     return <PrestigeBoxSkeleton />
@@ -42,19 +67,27 @@ export function PrestigeBox({ badgeLevel, respectPoints, bannerUrl }: PrestigeBo
     return null
   }
 
+  const { badgeLevel, respectPoints, bannerUrl: banner, streak } = stats
   const displayName = user.fullName || user.username || "Scholar"
   const username = user.username || "user"
   const avatarUrl = user.imageUrl
-  const banner = bannerUrl || "/default-banner.jpg"
 
   return (
     <div 
-      className="relative overflow-hidden rounded-xl bg-transparent group/prestige"
+      className={cn(
+        "relative overflow-hidden transition-all duration-500",
+        isFloating 
+          ? "rounded-2xl bg-black/80 backdrop-blur-xl border-none shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:scale-[1.02]" 
+          : "rounded-xl bg-transparent group/prestige"
+      )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Banner with Gradient Transition */}
-      <div className="relative h-24 w-full overflow-hidden">
+      <div className={cn(
+        "relative w-full overflow-hidden",
+        isFloating ? "h-20" : "h-24"
+      )}>
         <Image
           src={banner}
           alt="Profile Banner"
@@ -66,47 +99,65 @@ export function PrestigeBox({ badgeLevel, respectPoints, bannerUrl }: PrestigeBo
       </div>
 
       {/* Avatar & Content Wrapper */}
-      <div className="relative px-4 -mt-10 pb-6 bg-gradient-to-b from-black to-transparent">
-        {/* Avatar with Neon Glow */}
-        <div 
-          className={cn(
-            "relative w-20 h-20 rounded-full overflow-hidden ring-2 ring-offset-4 ring-offset-black transition-all duration-500",
-            badgeLevel === "Newbie" && "ring-gray-500 shadow-[0_0_15px_rgba(107,114,128,0.4)]",
-            badgeLevel === "Copper" && "ring-[#b87333] shadow-[0_0_20px_rgba(184,115,51,0.5)]",
-            badgeLevel === "Silver" && "ring-[#c0c0c0] shadow-[0_0_20px_rgba(192,192,192,0.5)]",
-            badgeLevel === "Gold" && "ring-[#ffd700] shadow-[0_0_25px_rgba(255,215,0,0.6)]",
-            badgeLevel === "Diamond" && "ring-[#b9f2ff] shadow-[0_0_30px_rgba(185,242,255,0.7)]"
+      <div className={cn(
+        "relative px-4 pb-6 bg-gradient-to-b from-black to-transparent",
+        isFloating ? "-mt-8" : "-mt-10"
+      )}>
+        <div className="flex items-center gap-4">
+          {/* Avatar with Neon Glow */}
+          <div 
+            className={cn(
+              "relative rounded-full overflow-hidden ring-2 ring-offset-4 ring-offset-black transition-all duration-500 shrink-0",
+              isFloating ? "w-14 h-14" : "w-20 h-20",
+              badgeLevel === "Newbie" && "ring-gray-500 shadow-[0_0_15px_rgba(107,114,128,0.4)]",
+              badgeLevel === "Copper" && "ring-[#b87333] shadow-[0_0_20px_rgba(184,115,51,0.5)]",
+              badgeLevel === "Silver" && "ring-[#c0c0c0] shadow-[0_0_20px_rgba(192,192,192,0.5)]",
+              badgeLevel === "Gold" && "ring-[#ffd700] shadow-[0_0_25px_rgba(255,215,0,0.6)]",
+              badgeLevel === "Diamond" && "ring-[#b9f2ff] shadow-[0_0_30px_rgba(185,242,255,0.7)]"
+            )}
+          >
+            <Image
+              src={avatarUrl}
+              alt={displayName}
+              fill
+              className="object-cover"
+            />
+          </div>
+
+          {isFloating && (
+            <div className="flex flex-col min-w-0 pt-4">
+              <h3 className="font-bold text-base text-foreground truncate">{displayName}</h3>
+              <p className="text-[10px] text-muted-foreground font-medium opacity-70 leading-none">@{username}</p>
+            </div>
           )}
-        >
-          <Image
-            src={avatarUrl}
-            alt={displayName}
-            fill
-            className="object-cover"
-          />
         </div>
 
-        {/* User Identity */}
-        <div className="mt-4 space-y-0.5">
-          <Link href={`/profile/${username}`} className="block">
-            <h3 
-              className={cn(
-                "font-bold text-xl tracking-tight transition-colors",
-                badgeLevel === "Gold" && "gradient-gold",
-                badgeLevel === "Silver" && "gradient-silver",
-                badgeLevel === "Copper" && "gradient-copper",
-                badgeLevel === "Diamond" && "gradient-diamond",
-                badgeLevel === "Newbie" && "text-neutral-200"
-              )}
-            >
-              {displayName}
-            </h3>
-            <p className="text-xs text-muted-foreground font-medium opacity-70">@{username}</p>
-          </Link>
-        </div>
+        {/* User Identity (Non-floating only) */}
+        {!isFloating && (
+          <div className="mt-4 space-y-0.5">
+            <Link href={`/profile/${username}`} className="block">
+              <h3 
+                className={cn(
+                  "font-bold text-xl tracking-tight transition-colors",
+                  badgeLevel === "Gold" && "gradient-gold",
+                  badgeLevel === "Silver" && "gradient-silver",
+                  badgeLevel === "Copper" && "gradient-copper",
+                  badgeLevel === "Diamond" && "gradient-diamond",
+                  badgeLevel === "Newbie" && "text-neutral-200"
+                )}
+              >
+                {displayName}
+              </h3>
+              <p className="text-xs text-muted-foreground font-medium opacity-70">@{username}</p>
+            </Link>
+          </div>
+        )}
 
-        {/* Stats Row: Respect & Badge */}
-        <div className="flex items-center gap-4 mt-5">
+        {/* Stats Row: Respect & Badge & Streak */}
+        <div className={cn(
+          "flex items-center gap-3",
+          isFloating ? "mt-4" : "mt-5"
+        )}>
           {/* Respect Count */}
           <div className={cn(
             "flex items-center gap-1.5 transition-all duration-300",
@@ -123,24 +174,39 @@ export function PrestigeBox({ badgeLevel, respectPoints, bannerUrl }: PrestigeBo
             </div>
           </div>
 
-          {/* Badge Display */}
+          {/* Streak Counter */}
           <div className="flex items-center gap-1.5">
-            <div className="p-1 rounded-md bg-white/5">
-              <Award 
-                className="w-3.5 h-3.5" 
-                style={{ color: badgeColors[badgeLevel] }}
-              />
+            <div className="p-1 rounded-md bg-orange-500/10">
+              <Zap className="w-3.5 h-3.5 text-orange-400" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] uppercase font-bold text-muted-foreground leading-none tracking-wider">Rank</span>
-              <span 
-                className="text-sm font-black"
-                style={{ color: badgeColors[badgeLevel] }}
-              >
-                {badgeLevel}
+              <span className="text-[10px] uppercase font-bold text-muted-foreground leading-none tracking-wider">Streak</span>
+              <span className="text-sm font-black text-foreground tabular-nums">
+                {streak}
               </span>
             </div>
           </div>
+
+          {/* Badge Display */}
+          {!isFloating && (
+            <div className="flex items-center gap-1.5">
+              <div className="p-1 rounded-md bg-white/5">
+                <Award 
+                  className="w-3.5 h-3.5" 
+                  style={{ color: badgeColors[badgeLevel as keyof typeof badgeColors] }}
+                />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] uppercase font-bold text-muted-foreground leading-none tracking-wider">Rank</span>
+                <span 
+                  className="text-sm font-black"
+                  style={{ color: badgeColors[badgeLevel as keyof typeof badgeColors] }}
+                >
+                  {badgeLevel}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import { Sparkles, TrendingUp, Info } from "lucide-react"
 import { cn } from "@/lib/utils"
 
+import { useUser } from "@clerk/nextjs"
+
 interface Axiom {
   text: string
   author: string
@@ -51,12 +53,18 @@ const AXIOMS: Axiom[] = [
 
 export function DailyAxiom() {
   const [axiom, setAxiom] = useState<Axiom | null>(null)
+  const { isSignedIn } = useUser()
 
   useEffect(() => {
     const today = new Date().toDateString()
     const index = Math.abs(today.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % AXIOMS.length
     setAxiom(AXIOMS[index])
-  }, [])
+
+    if (isSignedIn) {
+      fetch("/api/user/streak", { method: "POST" })
+        .catch(err => console.error("Failed to update streak:", err))
+    }
+  }, [isSignedIn])
 
   if (!axiom) return null
 

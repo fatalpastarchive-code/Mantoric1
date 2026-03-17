@@ -31,6 +31,8 @@ export interface User {
   rank: UserRank
   badgeLevel: BadgeLevel     // Newbie, Copper, Silver, Gold, Diamond
   badges: Badge[]
+  streak: number             // Reading streak in days
+  lastAxiomReadAt?: Date     // To track daily streak
   
   // Legacy fields (kept for migration, will be removed)
   xp?: number
@@ -128,15 +130,23 @@ export interface Badge {
 }
 
 // ============================================
-// BADGE LEVEL CALCULATOR (Based on Total Article Likes)
+// BADGE LEVEL CALCULATOR (Based on Total Respect Points)
 // ============================================
-// 0-10: Newbie | 11-50: Copper | 51-150: Silver | 151-500: Gold | 500+: Diamond
-export const calculateBadgeLevel = (totalLikes: number): BadgeLevel => {
-  if (totalLikes >= 500) return "Diamond"
-  if (totalLikes >= 151) return "Gold"
-  if (totalLikes >= 51) return "Silver"
-  if (totalLikes >= 11) return "Copper"
+// 0-100: Newbie | 101-500: Copper | 501-1500: Silver | 1501-5000: Gold | 5001+: Diamond
+export const calculateBadgeLevel = (respectPoints: number): BadgeLevel => {
+  if (respectPoints >= 5001) return "Diamond"
+  if (respectPoints >= 1501) return "Gold"
+  if (respectPoints >= 501) return "Silver"
+  if (respectPoints >= 101) return "Copper"
   return "Newbie"
+}
+
+/**
+ * Calculates user reputation score
+ * @deprecated Use respectPoints directly for primary ranking
+ */
+export const calculateReputation = (respectPoints: number, articlesRead: number = 0): number => {
+  return respectPoints + Math.floor(articlesRead / 10)
 }
 
 export const getBadgeColor = (badgeLevel: BadgeLevel): string => {
@@ -311,8 +321,9 @@ export const MONGODB_SCHEMAS = {
           bannerUrl: { bsonType: "string", description: "Banner URL" },
           bio: { bsonType: "string", description: "User bio" },
           statusNote: { bsonType: "string", description: "Short status or note" },
-          xp: { bsonType: "int", minimum: 0, description: "Experience points" },
-          level: { bsonType: "int", minimum: 1, description: "User level" },
+          respectPoints: { bsonType: "int", minimum: 0, description: "Total respect points" },
+          streak: { bsonType: "int", minimum: 0, description: "Reading streak" },
+          lastAxiomReadAt: { bsonType: "date" },
           rank: { enum: ["Newbie", "Bronze", "Silver", "Gold", "Platinum", "Diamond"] },
           badges: { bsonType: "array", items: { bsonType: "object" } },
           role: { enum: ["user", "moderator", "admin"] },
@@ -328,8 +339,8 @@ export const MONGODB_SCHEMAS = {
     indexes: [
       { key: { email: 1 }, unique: true },
       { key: { username: 1 }, unique: true },
-      { key: { xp: -1 } }, // For leaderboard
-      { key: { rank: 1, xp: -1 } },
+      { key: { respectPoints: -1 } }, // For leaderboard
+      { key: { badgeLevel: 1, respectPoints: -1 } },
     ],
   },
   

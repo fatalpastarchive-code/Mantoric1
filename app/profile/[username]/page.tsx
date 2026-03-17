@@ -134,7 +134,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     }
   }))
 
-  const reputation = calculateReputation(profileUser.xp || 0, (profileUser as any).hype || 0, profileUser.articlesRead || 0)
+  const respectPoints = profileUser.respectPoints || 0
+  const reputation = calculateReputation(respectPoints, profileUser.articlesRead || 0)
   const expertBadge = (profileUser as any).isVerifiedExpert ? { label: (profileUser as any).expertField || "Expert", color: "bg-blue-500/10 text-blue-400 border-blue-500/20" } : null
 
   // Prepare media items for CultureTab
@@ -232,24 +233,24 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
            <div className="p-3 rounded-2xl bg-secondary/20 border border-border/30 flex flex-col gap-1">
               <div className="flex items-center gap-1.5 text-muted-foreground">
-                 <Zap className="h-3.5 w-3.5 text-yellow-500" />
-                 <span className="text-[10px] font-bold uppercase tracking-wider">Hype Score</span>
+                 <Sparkles className="h-3.5 w-3.5 text-purple-500" />
+                 <span className="text-[10px] font-bold uppercase tracking-wider">Respect</span>
               </div>
-              <span className="text-lg font-black text-foreground">{(profileUser as any).hype || 0}</span>
+              <span className="text-lg font-black text-foreground">{respectPoints.toLocaleString()}</span>
            </div>
            <div className="p-3 rounded-2xl bg-secondary/20 border border-border/30 flex flex-col gap-1">
               <div className="flex items-center gap-1.5 text-muted-foreground">
-                 <Crown className="h-3.5 w-3.5 text-purple-500" />
+                 <Zap className="h-3.5 w-3.5 text-yellow-500" />
+                 <span className="text-[10px] font-bold uppercase tracking-wider">Streak</span>
+              </div>
+              <span className="text-lg font-black text-foreground">{(profileUser as any).streak || 0} Days</span>
+           </div>
+           <div className="p-3 rounded-2xl bg-secondary/20 border border-border/30 flex flex-col gap-1">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                 <Crown className="h-3.5 w-3.5 text-emerald-500" />
                  <span className="text-[10px] font-bold uppercase tracking-wider">Reputation</span>
               </div>
-              <span className="text-lg font-black text-foreground">{reputation}</span>
-           </div>
-           <div className="p-3 rounded-2xl bg-secondary/20 border border-border/30 flex flex-col gap-1">
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                 <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
-                 <span className="text-[10px] font-bold uppercase tracking-wider">Total XP</span>
-              </div>
-              <span className="text-lg font-black text-foreground">{(profileUser.xp || 0).toLocaleString()}</span>
+              <span className="text-lg font-black text-foreground">{reputation.toLocaleString()}</span>
            </div>
            <div className="p-3 rounded-2xl bg-secondary/20 border border-border/30 flex flex-col gap-1">
               <div className="flex items-center gap-1.5 text-muted-foreground">

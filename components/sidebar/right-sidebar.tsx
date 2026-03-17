@@ -6,7 +6,7 @@ import Link from "next/link"
 import { DailyAxiom } from "@/components/widgets/daily-axiom"
 import { MarketWidget } from "@/components/widgets/market-widget"
 import { TrendingArticlesWidget } from "@/components/widgets/trending-articles"
-import { LeaderboardWidget } from "@/components/widgets/leaderboard-widget"
+import { PrestigeBox } from "./prestige-box"
 import { cn } from "@/lib/utils"
 
 interface RightSidebarProps {
@@ -30,8 +30,14 @@ export function RightSidebar({ category }: RightSidebarProps) {
       {/* Trending Articles / You Must Know - Dynamic based on category */}
       <TrendingArticlesWidget category={category} limit={3} />
 
-      {/* Leaderboard Widget */}
-      {isSignedIn && <LeaderboardWidget />}
+      {/* Profile Card - Bottom Right Floating */}
+      {isSignedIn && (
+        <div className="fixed bottom-6 right-8 w-[300px] z-50 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <PrestigeBox
+            isFloating
+          />
+        </div>
+      )}
 
       {/* Footer Links */}
       <div className="px-4 flex flex-wrap gap-x-4 gap-y-1">

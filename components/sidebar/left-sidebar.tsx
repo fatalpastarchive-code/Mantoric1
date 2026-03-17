@@ -117,14 +117,7 @@ export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
 
   return (
     <nav className="flex flex-col h-full gap-6 w-full overflow-y-auto no-scrollbar">
-      {/* Prestige Box - Modern Profile Card */}
-      {isSignedIn && stats && (
-        <PrestigeBox
-          badgeLevel={stats.badgeLevel}
-          respectPoints={stats.respectPoints}
-          bannerUrl={user?.publicMetadata?.banner as string}
-        />
-      )}
+      {/* Prestige Box - Modern Profile Card removed from here */}
 
       {/* Main Navigation */}
       <div className="flex flex-col gap-1 w-full">

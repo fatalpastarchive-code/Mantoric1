@@ -144,8 +144,8 @@ export function ThreeColumnLayout({
           </aside>
 
           {/* Center - Main Feed */}
-          <main className="w-full max-w-[600px] min-h-screen bg-background/50">
-            <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-md px-4 py-4 lg:hidden">
+          <main className="w-full max-w-[600px] min-h-screen border-none bg-background/50">
+            <div className="sticky top-0 z-40 bg-background/80 border-none backdrop-blur-md px-4 py-4 lg:hidden">
               <div className="flex items-center justify-between">
                 <img src="/logo.png" alt="Mantoric" className="h-6 w-6 object-contain" />
                 <h1 className="text-lg font-bold">Mantoric</h1>
@@ -156,7 +156,7 @@ export function ThreeColumnLayout({
           </main>
 
           {/* Right Sidebar - Widgets/Stats */}
-          <aside className="hidden w-[350px] shrink-0 xl:block px-8 py-4">
+          <aside className="hidden w-[350px] shrink-0 xl:block px-8 py-4 border-none">
             <div className="sticky top-4 space-y-4">
               <div ref={searchRef} className="relative">
                 <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
