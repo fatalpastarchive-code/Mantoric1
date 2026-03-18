@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import Link from "next/link"
 import { Heart, Clock, Crown, Trash2, Landmark, MessageSquare, ShieldCheck, Sparkles } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -28,6 +27,9 @@ export interface ArticleCardProps {
     avatar?: string | null
     rank: string
     xp: number
+    respectPoints?: number
+    isPremium?: boolean
+    subscriptionTier?: "free" | "black" | "founder"
     bio?: string
     isVerifiedExpert?: boolean
     expertField?: string
@@ -91,6 +93,8 @@ export function ArticleCard({
   const [isLoading, setIsLoading] = useState(false)
 
   const authorIsCaesar = isCaesar(author.clerkId)
+  const hasSpecialRank = !!author.rank && author.rank.toLowerCase() !== "newbie"
+  const respectLevel = Math.max(1, Math.floor((author.respectPoints || 0) / 100) + 1)
   
   // Format the date
   let formattedDate = ""
@@ -174,8 +178,25 @@ export function ArticleCard({
     }
   }
 
+  const handleCardClick = () => {
+    router.push(`/article/${slug}`)
+  }
+
+  const handleCardKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault()
+      router.push(`/article/${slug}`)
+    }
+  }
+
   return (
-    <Link href={`/article/${slug}`} className="block hover:bg-zinc-950/50 transition-colors">
+    <div
+      role="link"
+      tabIndex={0}
+      onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
+      className="block cursor-pointer hover:bg-zinc-950/50 transition-colors"
+    >
       <div className="flex flex-col gap-3 p-4">
         {/* Author Header */}
         <div className="flex items-center justify-between">
@@ -185,6 +206,7 @@ export function ArticleCard({
             username: author.username || 'user',
             avatar: author.avatar || null,
             rank: author.rank,
+            respectPoints: author.respectPoints,
             xp: author.xp,
             isVerifiedExpert: author.isVerifiedExpert,
             expertField: author.expertField,
@@ -208,7 +230,9 @@ export function ArticleCard({
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-1">
-                  <span className={`text-sm font-bold ${authorIsCaesar ? "caesar-name" : "text-foreground"}`}>
+                  <span
+                    className={`text-sm font-bold ${authorIsCaesar ? "caesar-name" : "text-foreground"} ${author.isPremium ? "animate-pulse drop-shadow-[0_0_10px_rgba(168,85,247,0.22)]" : ""}`}
+                  >
                     {author.name}
                   </span>
                   {author.isVerifiedExpert && (
@@ -218,9 +242,15 @@ export function ArticleCard({
                       </svg>
                     </div>
                   )}
-                  <Badge className={`mantoric-role-badge h-4 px-1 text-[9px] uppercase font-bold ${getRankColor(author.rank)} border-none shadow-none`}>
-                    {author.rank}
-                  </Badge>
+                  {hasSpecialRank ? (
+                    <Badge className={`mantoric-role-badge h-4 px-1 text-[9px] uppercase font-bold ${getRankColor(author.rank)} border-none shadow-none`}>
+                      {author.rank}
+                    </Badge>
+                  ) : (
+                    <span className="text-[11px] font-bold text-purple-300/90 tabular-nums">
+                      Level {respectLevel}
+                    </span>
+                  )}
                 </div>
                 <span className="text-xs text-muted-foreground">@{author.username || 'user'} · {formattedDate}</span>
               </div>
@@ -281,6 +311,6 @@ export function ArticleCard({
           )}
         </div>
       </div>
-    </Link>
+    </div>
   )
 }

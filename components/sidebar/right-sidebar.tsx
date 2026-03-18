@@ -20,7 +20,7 @@ export function RightSidebar({ category }: RightSidebarProps) {
   const isFinance = category === "finance-career" || category === "finance" || category === "business"
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 h-full">
       {/* Daily Axiom - Always visible */}
       <DailyAxiom />
 
@@ -30,28 +30,12 @@ export function RightSidebar({ category }: RightSidebarProps) {
       {/* Trending Articles / You Must Know - Dynamic based on category */}
       <TrendingArticlesWidget category={category} limit={3} />
 
-      {/* Profile Card - Bottom Right Floating */}
+      {/* Profile Card - Sticky Bottom */}
       {isSignedIn && (
-        <div className="fixed bottom-6 right-8 w-[300px] z-50 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <PrestigeBox
-            isFloating
-          />
+        <div className="mt-auto sticky bottom-4">
+          <PrestigeBox isFloating />
         </div>
       )}
-
-      {/* Footer Links */}
-      <div className="px-4 flex flex-wrap gap-x-4 gap-y-1">
-        {["Terms", "Privacy", "Cookie Policy", "Ads info", "More"].map((link) => (
-          <Link 
-            key={link} 
-            href={`/${link.toLowerCase().replace(/\s+/g, '-')}`}
-            className="text-[12px] text-muted-foreground/50 hover:underline cursor-pointer transition-colors"
-          >
-            {link}
-          </Link>
-        ))}
-        <p className="text-[12px] text-muted-foreground/50 mt-1 w-full">© 2026 Mantoric Corp.</p>
-      </div>
     </div>
   )
 }

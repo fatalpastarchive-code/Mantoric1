@@ -20,7 +20,7 @@ export async function GET() {
 
     // Check if user can give respect (30-day cooldown)
     const now = new Date()
-    const lastRespectGiven = user.lastRespectGivenAt
+    const lastRespectGiven = user.lastRespectGivenAt || (user as any).lastRespectGivenDate
     let canGiveRespect = true
     let daysRemaining = 0
 
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date()
-    const lastRespectGiven = currentUser.lastRespectGivenAt
+    const lastRespectGiven = currentUser.lastRespectGivenAt || (currentUser as any).lastRespectGivenDate
 
     if (lastRespectGiven) {
       const daysSinceLastRespect = Math.floor(
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     // Update current user's last respect given date
     await usersCol.updateOne(
       { _id: currentUser._id },
-      { $set: { lastRespectGivenAt: now } }
+      { $set: { lastRespectGivenAt: now, lastRespectGivenDate: now } }
     )
 
     return NextResponse.json({

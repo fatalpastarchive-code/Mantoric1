@@ -29,6 +29,9 @@ export interface EnrichedArticle {
     bio?: string
     rank: string
     xp: number
+    respectPoints?: number
+    isPremium?: boolean
+    subscriptionTier?: "free" | "black" | "founder"
   }
 }
 
@@ -126,6 +129,9 @@ export async function fetchArticles(opts?: {
         bio: u?.bio || undefined,
         rank: u?.rank || "Newbie",
         xp: u?.xp ?? 0,
+        respectPoints: u?.respectPoints ?? 0,
+        isPremium: u?.isPremium ?? false,
+        subscriptionTier: (u as any)?.subscriptionTier ?? "free",
       },
     }
   })

@@ -22,22 +22,29 @@ export async function GET(
     
     const respectPoints = targetUser.respectPoints || 0
     
-    // Check if current user can give respect (1 per month)
+    // Check if current user can give respect (30-day cooldown)
     let canGiveRespect = false
     let hasGivenRespect = false
+    let daysRemaining = 0
     
     if (session?.userId) {
       const currentUser = await usersCol.findOne({ clerkId: session.userId })
       if (currentUser) {
-        const lastGiven = currentUser.lastRespectGivenAt
+        const lastGiven = currentUser.lastRespectGivenAt || (currentUser as any).lastRespectGivenDate
         const now = new Date()
         
-        // Check if a month has passed since last respect given
         if (!lastGiven) {
           canGiveRespect = true
         } else {
-          const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate())
-          canGiveRespect = new Date(lastGiven) < oneMonthAgo
+          const daysSinceLastRespect = Math.floor(
+            (now.getTime() - new Date(lastGiven).getTime()) / (1000 * 60 * 60 * 24)
+          )
+          if (daysSinceLastRespect < 30) {
+            canGiveRespect = false
+            daysRemaining = 30 - daysSinceLastRespect
+          } else {
+            canGiveRespect = true
+          }
         }
         
         // Check if already gave respect to this user
@@ -53,6 +60,7 @@ export async function GET(
       respectPoints,
       canGiveRespect: canGiveRespect && !hasGivenRespect,
       hasGivenRespect,
+      daysRemaining,
       totalGivers: await respectsCol.countDocuments({ receiverId: targetUserId })
     })
   } catch (error) {
@@ -90,15 +98,18 @@ export async function POST(
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
     
-    // Check if can give respect (1 per month)
-    const lastGiven = currentUser.lastRespectGivenAt
+    // Check if can give respect (30-day cooldown)
+    const lastGiven = currentUser.lastRespectGivenAt || (currentUser as any).lastRespectGivenDate
     const now = new Date()
     
     if (lastGiven) {
-      const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate())
-      if (new Date(lastGiven) >= oneMonthAgo) {
+      const daysSinceLastRespect = Math.floor(
+        (now.getTime() - new Date(lastGiven).getTime()) / (1000 * 60 * 60 * 24)
+      )
+      if (daysSinceLastRespect < 30) {
+        const daysRemaining = 30 - daysSinceLastRespect
         return NextResponse.json(
-          { error: "You can only give respect once per month" },
+          { error: `You can give Respect again in ${daysRemaining} days`, daysRemaining },
           { status: 429 }
         )
       }
@@ -124,10 +135,10 @@ export async function POST(
       givenAt: now
     })
     
-    // Update giver's lastRespectGivenAt
+    // Update giver's last respect given date
     await usersCol.updateOne(
       { clerkId: giverId },
-      { $set: { lastRespectGivenAt: now } }
+      { $set: { lastRespectGivenAt: now, lastRespectGivenDate: now } }
     )
     
     // Update receiver's respectPoints

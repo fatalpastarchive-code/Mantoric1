@@ -9,6 +9,7 @@ import { ProfileTabs } from "@/components/profile/profile-tabs"
 import { ThreeColumnLayout } from "@/components/layout/three-column-layout"
 import { LeftSidebar } from "@/components/sidebar/left-sidebar"
 import { RightSidebar } from "@/components/sidebar/right-sidebar"
+import { RespectWriterButton } from "@/components/respect/respect-writer-button"
 import { 
   Settings, 
   Crown, 
@@ -192,11 +193,16 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                  />
               </div>
             ) : (
-              <FollowButton 
-                targetUserId={profileUser._id.toString()} 
-                initialIsFollowing={isFollowing} 
-                isOwnProfile={false}
-              />
+              <>
+                {profileUser.clerkId && (
+                  <RespectWriterButton targetUserId={profileUser.clerkId} />
+                )}
+                <FollowButton 
+                  targetUserId={profileUser._id.toString()} 
+                  initialIsFollowing={isFollowing} 
+                  isOwnProfile={false}
+                />
+              </>
             )}
           </div>
         </div>

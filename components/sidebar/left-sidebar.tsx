@@ -153,7 +153,7 @@ export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
             return (
               <Link
                 key={category.id}
-                href={`/category/${category.slug}`}
+                href={`/?category=${category.slug}`}
                 className={cn(
                   "flex items-center gap-4 rounded-full px-4 py-2 text-[15px] font-medium transition-all duration-200 w-fit max-w-full",
                   isActive

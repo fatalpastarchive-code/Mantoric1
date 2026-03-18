@@ -38,7 +38,7 @@ export function PrestigeBox({ badgeLevel: initialBadgeLevel, respectPoints: init
     badgeLevel: initialBadgeLevel || "Newbie",
     respectPoints: initialRespectPoints || 0,
     streak: 0,
-    bannerUrl: initialBannerUrl || (user?.publicMetadata?.banner as string) || "/default-banner.jpg"
+    bannerUrl: initialBannerUrl || ""
   })
 
   useEffect(() => {
@@ -51,13 +51,13 @@ export function PrestigeBox({ badgeLevel: initialBadgeLevel, respectPoints: init
               badgeLevel: data.user.badgeLevel || "Newbie",
               respectPoints: data.user.respectPoints || 0,
               streak: data.user.streak || 0,
-              bannerUrl: (user?.publicMetadata?.banner as string) || "/default-banner.jpg"
+              bannerUrl: data.user.bannerUrl || ""
             })
           }
         })
         .catch(err => console.error("Failed to fetch floating profile stats:", err))
     }
-  }, [isFloating, isLoaded, user?.username, user?.publicMetadata?.banner])
+  }, [isFloating, isLoaded, user?.username])
 
   if (!isLoaded) {
     return <PrestigeBoxSkeleton />
@@ -72,7 +72,7 @@ export function PrestigeBox({ badgeLevel: initialBadgeLevel, respectPoints: init
   const username = user.username || "user"
   const avatarUrl = user.imageUrl
 
-  return (
+  const content = (
     <div 
       className={cn(
         "relative overflow-hidden transition-all duration-500",
@@ -86,15 +86,19 @@ export function PrestigeBox({ badgeLevel: initialBadgeLevel, respectPoints: init
       {/* Banner with Gradient Transition */}
       <div className={cn(
         "relative w-full overflow-hidden",
-        isFloating ? "h-20" : "h-24"
+        isFloating ? "h-24" : "h-24"
       )}>
-        <Image
-          src={banner}
-          alt="Profile Banner"
-          fill
-          className="object-cover transition-transform duration-500 group-hover/prestige:scale-105"
-          priority
-        />
+        {banner ? (
+          <Image
+            src={banner}
+            alt="Profile Banner"
+            fill
+            className="object-cover transition-transform duration-500 group-hover/prestige:scale-105"
+            priority
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-black to-zinc-900" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black" />
       </div>
 
@@ -210,6 +214,16 @@ export function PrestigeBox({ badgeLevel: initialBadgeLevel, respectPoints: init
         </div>
       </div>
     </div>
+  )
+
+  return (
+    isFloating ? (
+      <Link href={`/profile/${username}`} className="block cursor-pointer">
+        {content}
+      </Link>
+    ) : (
+      content
+    )
   )
 }
 

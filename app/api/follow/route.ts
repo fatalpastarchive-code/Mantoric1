@@ -40,10 +40,17 @@ export async function POST(request: NextRequest) {
         { clerkId: followerId },
         { $inc: { followingCount: -1 } }
       )
-      await usersCol.updateOne(
-        { _id: new ObjectId(targetUserId) as any },
-        { $inc: { followersCount: -1 } }
-      )
+      try {
+        await usersCol.updateOne(
+          { _id: new ObjectId(targetUserId) as any },
+          { $inc: { followersCount: -1 } }
+        )
+      } catch {
+        await usersCol.updateOne(
+          { clerkId: targetUserId },
+          { $inc: { followersCount: -1 } }
+        )
+      }
       
       isFollowing = false
     } else {
@@ -60,10 +67,17 @@ export async function POST(request: NextRequest) {
         { clerkId: followerId },
         { $inc: { followingCount: 1 } }
       )
-      await usersCol.updateOne(
-        { _id: new ObjectId(targetUserId) as any },
-        { $inc: { followersCount: 1 } }
-      )
+      try {
+        await usersCol.updateOne(
+          { _id: new ObjectId(targetUserId) as any },
+          { $inc: { followersCount: 1 } }
+        )
+      } catch {
+        await usersCol.updateOne(
+          { clerkId: targetUserId },
+          { $inc: { followersCount: 1 } }
+        )
+      }
 
       isFollowing = true
     }

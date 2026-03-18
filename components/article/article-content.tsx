@@ -9,6 +9,7 @@ import { formatDistanceToNow } from "date-fns"
 import { DeleteButton } from "@/components/article/delete-button"
 import { ArticleFeedback } from "./article-feedback"
 import { ReadingProgress } from "@/components/article/reading-progress"
+import { RespectWriterButton } from "@/components/respect/respect-writer-button"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
@@ -63,83 +64,7 @@ function getRankColor(rank: string): string {
 
 export function ArticleContent({ article, author, isOwnArticle }: ArticleContentProps) {
   const { user: currentUser, isSignedIn } = useUser()
-  const [reputation, setReputation] = useState(0)
-  const [hasVoted, setHasVoted] = useState(false)
-  const [userVote, setUserVote] = useState(0)
-  const [totalVoters, setTotalVoters] = useState(0)
-  const [isLoadingRep, setIsLoadingRep] = useState(true)
 
-  // Fetch reputation on mount
-  useEffect(() => {
-    if (author.userId) {
-      fetchReputation()
-    }
-  }, [author.userId])
-
-  const fetchReputation = async () => {
-    try {
-      const url = `/api/user/${author.userId}/reputation`
-      console.log("[DEBUG] Fetching reputation:", url)
-      
-      const res = await fetch(url)
-      console.log("[DEBUG] Reputation status:", res.status)
-      
-      const contentType = res.headers.get("content-type")
-      if (!contentType || !contentType.includes("application/json")) {
-        const text = await res.text()
-        console.error("[DEBUG] Reputation non-JSON response:", text.substring(0, 200))
-        return
-      }
-      
-      if (res.ok) {
-        const data = await res.json()
-        setReputation(data.reputation)
-        setHasVoted(data.hasGivenReputation)
-        setUserVote(data.givenAmount)
-        setTotalVoters(data.totalGivers)
-      }
-    } catch (error) {
-      console.error("[DEBUG] Failed to fetch reputation:", error)
-    } finally {
-      setIsLoadingRep(false)
-    }
-  }
-
-  const handleVote = async (amount: number) => {
-    if (!isSignedIn) {
-      toast.error("Please sign in to vote")
-      return
-    }
-    if (isOwnArticle) {
-      toast.error("Cannot vote on your own content")
-      return
-    }
-    if (hasVoted) {
-      toast.error("You have already voted for this author")
-      return
-    }
-
-    try {
-      const res = await fetch(`/api/user/${author.userId}/reputation`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount }),
-      })
-
-      if (res.ok) {
-        setHasVoted(true)
-        setUserVote(amount)
-        setReputation(prev => prev + amount)
-        setTotalVoters(prev => prev + 1)
-        toast.success(amount > 0 ? "Reputation increased!" : "Reputation decreased")
-      } else {
-        const data = await res.json()
-        toast.error(data.error || "Failed to vote")
-      }
-    } catch (error) {
-      toast.error("An error occurred")
-    }
-  }
 
   const publishDate = article.publishedAt || article.createdAt
   let dateStr = "recently"
@@ -178,10 +103,9 @@ export function ArticleContent({ article, author, isOwnArticle }: ArticleContent
               <Clock className="h-3.5 w-3.5" />
               <span>{article.readTime} min read</span>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-purple-400 font-medium">
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>+{article.readTime * 5} Respect</span>
-            </div>
+            {author.userId && !isOwnArticle && (
+              <RespectWriterButton targetUserId={author.userId} />
+            )}
           </div>
 
           <h1 className="font-heading text-4xl font-extrabold leading-tight tracking-tight text-foreground md:text-5xl lg:text-6xl text-balance">
@@ -236,49 +160,10 @@ export function ArticleContent({ article, author, isOwnArticle }: ArticleContent
               </div>
             </div>
 
-            {/* Reputation Voting */}
+            {/* Respect Writer */}
             {author.userId && !isOwnArticle && (
-              <div className="ml-auto flex items-center gap-2">
-                <div className="flex flex-col items-end">
-                  <span className="text-xs text-muted-foreground">Reputation</span>
-                  <span className="text-sm font-bold text-purple-400">{reputation.toLocaleString()}</span>
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <button
-                    onClick={() => handleVote(1)}
-                    disabled={hasVoted || !isSignedIn}
-                    className={cn(
-                      "p-1 rounded transition-colors",
-                      hasVoted && userVote === 1
-                        ? "bg-emerald-500/20 text-emerald-400"
-                        : "hover:bg-secondary text-muted-foreground hover:text-emerald-400",
-                      (!isSignedIn || hasVoted) && "opacity-50 cursor-not-allowed"
-                    )}
-                    title={!isSignedIn ? "Sign in to vote" : hasVoted ? "Already voted" : "Increase reputation"}
-                  >
-                    <ThumbsUp className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => handleVote(-1)}
-                    disabled={hasVoted || !isSignedIn}
-                    className={cn(
-                      "p-1 rounded transition-colors",
-                      hasVoted && userVote === -1
-                        ? "bg-red-500/20 text-red-400"
-                        : "hover:bg-secondary text-muted-foreground hover:text-red-400",
-                      (!isSignedIn || hasVoted) && "opacity-50 cursor-not-allowed"
-                    )}
-                    title={!isSignedIn ? "Sign in to vote" : hasVoted ? "Already voted" : "Decrease reputation"}
-                  >
-                    <ThumbsDown className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            )}
-            {isOwnArticle && author.userId && (
-              <div className="ml-auto flex flex-col items-end">
-                <span className="text-xs text-muted-foreground">Your Reputation</span>
-                <span className="text-sm font-bold text-purple-400">{reputation.toLocaleString()}</span>
+              <div className="ml-auto">
+                <RespectWriterButton targetUserId={author.userId} />
               </div>
             )}
           </div>

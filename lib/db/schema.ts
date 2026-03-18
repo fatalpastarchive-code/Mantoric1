@@ -28,6 +28,7 @@ export interface User {
   followingCount: number
   respectPoints: number      // Total respect received from other users
   lastRespectGivenAt?: Date  // When user last gave respect (monthly limit)
+  lastRespectGivenDate?: Date // Alias for compatibility with newer UI/API naming
   rank: UserRank
   badgeLevel: BadgeLevel     // Newbie, Copper, Silver, Gold, Diamond
   badges: Badge[]
@@ -47,6 +48,10 @@ export interface User {
   // Themes
   unlockedThemes: string[]
   activeTheme: string
+
+  // Premium
+  isPremium?: boolean
+  subscriptionTier?: "free" | "black" | "founder"
   
   // Media Tracking
   watchedMedia: MediaItem[]
@@ -145,7 +150,20 @@ export const calculateBadgeLevel = (respectPoints: number): BadgeLevel => {
  * Calculates user reputation score
  * @deprecated Use respectPoints directly for primary ranking
  */
-export const calculateReputation = (respectPoints: number, articlesRead: number = 0): number => {
+export const calculateReputation = (...args: number[]): number => {
+  // Legacy signature used to be: (xp, hype, articlesRead)
+  // New signature: (respectPoints, articlesRead)
+  // We support both to avoid build breaks.
+
+  if (args.length >= 3) {
+    const xp = args[0] ?? 0
+    const hype = args[1] ?? 0
+    const articlesRead = args[2] ?? 0
+    return xp + hype + Math.floor(articlesRead / 10)
+  }
+
+  const respectPoints = args[0] ?? 0
+  const articlesRead = args[1] ?? 0
   return respectPoints + Math.floor(articlesRead / 10)
 }
 
