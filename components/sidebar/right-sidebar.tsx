@@ -20,7 +20,7 @@ export function RightSidebar({ category }: RightSidebarProps) {
   const isFinance = category === "finance-career" || category === "finance" || category === "business"
 
   return (
-    <div className="flex flex-col gap-6 h-full">
+    <div className="flex flex-col gap-2">
       {/* Daily Axiom - Always visible */}
       <DailyAxiom />
 
@@ -29,13 +29,6 @@ export function RightSidebar({ category }: RightSidebarProps) {
 
       {/* Trending Articles / You Must Know - Dynamic based on category */}
       <TrendingArticlesWidget category={category} limit={3} />
-
-      {/* Profile Card - Sticky Bottom */}
-      {isSignedIn && (
-        <div className="mt-auto sticky bottom-4">
-          <PrestigeBox isFloating />
-        </div>
-      )}
     </div>
   )
 }

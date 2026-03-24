@@ -64,19 +64,27 @@ export function TrendingArticlesWidget({ category, limit = 3 }: TrendingArticles
     return colors[cat.toLowerCase()] || "bg-primary/20 text-primary"
   }
 
+  // Get category color for number bubbles
+  const getNumberColor = (index: number) => {
+    const colors = ["bg-orange-600/30 text-orange-400", "bg-zinc-800 text-zinc-400", "bg-amber-800/40 text-amber-500"]
+    return colors[index % colors.length]
+  }
+
   if (loading) {
     return (
-      <div className="rounded-2xl bg-secondary/30 p-4 border border-border/20 backdrop-blur-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="h-4 w-4 text-primary" />
-          <span className="text-[13px] font-bold uppercase tracking-wider text-muted-foreground">You Must Know</span>
+      <div className="rounded-[2rem] bg-white/5 p-4 backdrop-blur-md border-none">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="h-5 w-5 rounded-full bg-zinc-800 animate-pulse" />
+          <div className="h-4 w-32 bg-zinc-800 animate-pulse rounded" />
         </div>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-2 bg-border/50 rounded w-1/3 mb-2" />
-              <div className="h-4 bg-border/50 rounded w-full mb-1" />
-              <div className="h-3 bg-border/50 rounded w-2/3" />
+            <div key={i} className="animate-pulse flex gap-3">
+              <div className="h-5 w-5 rounded-full bg-white/5 shrink-0" />
+              <div className="flex-1 space-y-1.5">
+                <div className="h-2.5 bg-white/5 rounded-lg w-1/3" />
+                <div className="h-3.5 bg-white/5 rounded-lg w-full" />
+              </div>
             </div>
           ))}
         </div>
@@ -86,68 +94,58 @@ export function TrendingArticlesWidget({ category, limit = 3 }: TrendingArticles
 
   if (articles.length === 0) {
     return (
-      <div className="rounded-2xl bg-secondary/30 p-4 border border-border/20 backdrop-blur-sm">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="h-4 w-4 text-primary" />
-          <span className="text-[13px] font-bold uppercase tracking-wider text-muted-foreground">You Must Know</span>
+      <div className="rounded-[2rem] bg-white/5 p-4 backdrop-blur-md border-none">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-1 rounded-full bg-orange-500/10">
+            <Flame className="h-3.5 w-3.5 text-orange-500 fill-orange-500/20" />
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">You Must Know</span>
         </div>
-        <p className="text-sm text-muted-foreground text-center py-4">
-          No trending articles yet in {category || "this category"}
+        <p className="text-xs text-zinc-500 text-center py-4 font-medium italic">
+          No trending articles yet
         </p>
       </div>
     )
   }
 
   return (
-    <div className="rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/30 p-4 border border-border/20 backdrop-blur-sm">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-primary/20">
-            <Flame className="h-4 w-4 text-orange-500" />
-          </div>
-          <span className="text-[13px] font-bold uppercase tracking-wider text-muted-foreground">You Must Know</span>
+    <div className="rounded-3xl bg-white/5 p-4 backdrop-blur-md border-none">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="p-1 rounded-full bg-orange-500/10">
+          <Flame className="h-3.5 w-3.5 text-orange-500 fill-orange-500/30" />
         </div>
-        {category && (
-          <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-bold uppercase", getCategoryColor(category))}>
-            {category}
-          </span>
-        )}
+        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">You Must Know</span>
       </div>
-      
-      <div className="space-y-4">
+
+      <div className="space-y-3">
         {articles.map((article, index) => (
           <Link 
             key={article.id} 
             href={`/article/${article.slug}`}
-            className="group block"
+            className="group flex gap-3 items-start transition-all duration-300"
           >
-            <div className="flex items-start gap-3">
-              <span className={cn(
-                "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
-                index === 0 ? "bg-orange-500/20 text-orange-500" :
-                index === 1 ? "bg-zinc-500/20 text-zinc-400" :
-                index === 2 ? "bg-amber-700/20 text-amber-600" :
-                "bg-border/50 text-muted-foreground"
-              )}>
-                {index + 1}
-              </span>
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] font-bold text-muted-foreground/60 uppercase tracking-widest mb-1">
+            <div className={cn(
+              "h-5 w-5 rounded-full flex items-center justify-center shrink-0 text-[10px] font-black",
+              getNumberColor(index)
+            )}>
+              {index + 1}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-0.5">
+                <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider truncate">
                   {article.category}
-                </p>
-                <h4 className="text-sm font-bold text-foreground leading-tight group-hover:text-primary transition-colors line-clamp-2">
-                  {article.title}
-                </h4>
-                <div className="mt-1.5 flex items-center gap-3 text-[11px] text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Eye className="h-3 w-3" />
-                    {article.views.toLocaleString()}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Flame className="h-3 w-3 text-orange-500" />
-                    {article.likes.toLocaleString()}
-                  </span>
-                </div>
+                </span>
+              </div>
+              <h4 className="text-[13px] font-bold text-white line-clamp-1 leading-tight group-hover:text-orange-400 transition-colors">
+                {article.title}
+              </h4>
+              <div className="mt-1 flex items-center gap-2.5 text-[10px] text-zinc-500 font-medium">
+                <span className="flex items-center gap-1 opacity-70">
+                  <Eye className="h-3 w-3" /> {article.views}
+                </span>
+                <span className="flex items-center gap-1 text-orange-500/80">
+                  <Flame className="h-3 w-3 fill-current" /> {article.likes}
+                </span>
               </div>
             </div>
           </Link>
@@ -155,13 +153,13 @@ export function TrendingArticlesWidget({ category, limit = 3 }: TrendingArticles
       </div>
 
       <Link 
-        href={category ? `/category/${category.toLowerCase().replace(/\s+/g, '-')}` : "/trending"}
-        className="mt-4 pt-3 border-t border-border/20 flex items-center justify-between group"
+        href="/trending" 
+        className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between group"
       >
-        <span className="text-[11px] font-bold text-primary/80 group-hover:text-primary transition-colors">
-          View All Trending
+        <span className="text-[12px] font-bold text-zinc-500 group-hover:text-white transition-colors tracking-tight">
+          View All
         </span>
-        <ArrowUpRight className="h-3.5 w-3.5 text-primary/60 group-hover:text-primary transition-colors" />
+        <ArrowUpRight className="h-3.5 w-3.5 text-zinc-600 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
       </Link>
     </div>
   )

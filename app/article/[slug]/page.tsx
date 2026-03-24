@@ -79,6 +79,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             isVerifiedExpert,
             expertField,
             userId: article.authorId,
+            respectPoints: authorDoc?.respectPoints || 0,
+            xp: authorDoc?.xp || 0,
+            banner: authorDoc?.banner || (authorDoc as any)?.bannerUrl || undefined,
           }}
           isOwnArticle={isOwnArticle}
         />

@@ -14,8 +14,21 @@ export function RespectNotification() {
     if (!isSignedIn) return
 
     const checkNewRespect = async () => {
+      if (!window.navigator.onLine) return
+
       try {
-        const res = await fetch("/api/respect/notify")
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 8000)
+
+        const res = await fetch("/api/respect/notify", {
+          signal: controller.signal,
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        })
+        clearTimeout(timeoutId)
+
         if (res.ok) {
           const data = await res.json()
           if (data.notifications && data.notifications.length > 0) {
@@ -42,7 +55,8 @@ export function RespectNotification() {
             setLastCheckedAt(new Date())
           }
         }
-      } catch (error) {
+      } catch (error: any) {
+        if (error.name === 'AbortError') return
         console.error("Failed to check respect notifications:", error)
       }
     }

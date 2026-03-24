@@ -29,49 +29,46 @@ export default async function Home({ searchParams }: HomeProps) {
     <ThreeColumnLayout
       leftSidebar={<LeftSidebar activeCategory={categorySlug} />}
       mainContent={
-        <div className="flex flex-col">
-          {/* Article Composer */}
-          <div className="border-b border-border/50">
-            <ArticleComposer />
-          </div>
-
-          <div className="flex flex-col gap-4 border-b border-border/50 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-foreground">
-                {activeCategory ? activeCategory.label : "Home"}
-              </h1>
-            </div>
-            {activeCategory && (
+        <div className="flex flex-col gap-8 py-0">
+          {activeCategory && (
+            <div className="flex flex-col gap-4 px-6 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h1 className="text-3xl font-semibold tracking-tighter text-foreground">
+                  {activeCategory.label}
+                </h1>
+              </div>
               <a
                 href="/"
-                className="rounded-full border border-border/50 bg-secondary/50 px-4 py-1.5 text-xs font-bold text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
+                className="rounded-2xl bg-white/5 px-4 py-2 text-xs font-semibold text-zinc-400 transition-all hover:bg-white/10 hover:text-white"
               >
                 ← All
               </a>
-            )}
-          </div>
+            </div>
+          )}
 
           {articles.length === 0 ? (
-            <div className="flex flex-col items-center gap-4 rounded-xl border border-border/50 bg-card/50 p-12 text-center backdrop-blur-sm">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary/50">
-                <svg className="h-8 w-8 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <div className="mx-4 flex flex-col items-center gap-6 rounded-3xl bg-white/5 p-16 text-center backdrop-blur-md">
+              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/5">
+                <svg className="h-10 w-10 text-zinc-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                 </svg>
               </div>
               <div>
-                <p className="text-base font-semibold text-foreground">
+                <p className="text-xl font-semibold text-foreground">
                   {activeCategory ? `No articles in ${activeCategory.label} yet` : "No articles yet"}
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-2 text-sm text-zinc-500 max-w-xs mx-auto font-light">
                   Be the first to publish and share your knowledge with the community.
                 </p>
               </div>
             </div>
           ) : (
-            <InfiniteFeed 
-              initialArticles={articles as any} 
-              category={categoryLabel}
-            />
+            <div className="flex flex-col gap-2">
+              <InfiniteFeed 
+                initialArticles={articles as any} 
+                category={categoryLabel}
+              />
+            </div>
           )}
         </div>
       }

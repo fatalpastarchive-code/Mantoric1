@@ -9,6 +9,7 @@ export const CATEGORIES = [
   { id: "relationships", label: "Relationships", slug: "relationships" },
   { id: "philosophy", label: "Philosophy", slug: "philosophy" },
   { id: "technology", label: "Technology", slug: "technology" },
+  { id: "psychology", label: "Psychology", slug: "psychology" },
   { id: "lifestyle", label: "Lifestyle", slug: "lifestyle" },
 ] as const
 

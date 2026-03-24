@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useUser, SignInButton } from "@clerk/nextjs"
-import { PenLine, Heart, Sparkles, Dumbbell, Wallet, Brain, Cpu, Coffee, Gift, Lock } from "lucide-react"
+import { PenLine, Heart, Sparkles, Dumbbell, Wallet, Brain, Cpu, Coffee, Gift, Lock, VenetianMask } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,7 @@ const categoryIcons: Record<string, React.ElementType> = {
   "relationships": Heart,
   "philosophy": Brain,
   "technology": Cpu,
+  "psychology": VenetianMask,
   "lifestyle": Coffee,
 }
 
@@ -62,18 +63,18 @@ export function ArticleComposer() {
 
   if (!isSignedIn) {
     return (
-      <div className="flex items-center justify-between overflow-hidden rounded-xl border border-border/50 bg-card/50 p-4 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent">
-            <Lock className="h-5 w-5 text-muted-foreground" />
+      <div className="flex items-center justify-between overflow-hidden rounded-3xl bg-white/5 p-6 backdrop-blur-md border-none">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/5">
+            <Lock className="h-6 w-6 text-zinc-500" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-foreground">Have something to share?</p>
-            <p className="text-xs text-muted-foreground">Sign in to publish articles and join discussions.</p>
+            <p className="text-base font-semibold text-foreground">Have something to share?</p>
+            <p className="text-sm text-zinc-500 font-light">Sign in to publish articles and join discussions.</p>
           </div>
         </div>
         <SignInButton mode="modal">
-          <button className="rounded-lg bg-foreground px-4 py-2 text-sm font-bold text-background transition-all hover:bg-foreground/90">
+          <button className="rounded-2xl bg-white px-6 py-2.5 text-sm font-semibold text-black transition-all hover:bg-zinc-200">
             Sign in
           </button>
         </SignInButton>
@@ -83,22 +84,22 @@ export function ArticleComposer() {
 
   return (
     <>
-      <div className="overflow-hidden rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm">
-        <form onSubmit={handleCreate} className="flex items-center gap-3 p-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent">
-            <PenLine className="h-5 w-5 text-muted-foreground" />
+      <div className="overflow-hidden rounded-3xl bg-white/5 backdrop-blur-md border-none">
+        <form onSubmit={handleCreate} className="flex items-center gap-4 p-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/5">
+            <PenLine className="h-6 w-6 text-zinc-500" />
           </div>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Share your knowledge with the community..."
-            className="flex-1 bg-transparent text-sm font-medium text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
+            placeholder="Share your knowledge..."
+            className="flex-1 bg-transparent text-lg font-light text-foreground placeholder:text-zinc-600 focus:outline-none"
           />
           <Button
             type="submit"
             disabled={!title.trim() || !selectedCategory}
-            className="rounded-lg bg-foreground px-5 py-2 text-sm font-bold text-background transition-all hover:bg-foreground/90 disabled:opacity-50"
+            className="rounded-2xl bg-white px-6 py-2.5 text-sm font-semibold text-black transition-all hover:bg-zinc-200 disabled:opacity-30 border-none"
           >
             Create
           </Button>
@@ -107,13 +108,13 @@ export function ArticleComposer() {
         {/* Category Selector with Animation */}
         <div
           className={cn(
-            "grid transition-all duration-300 ease-out",
+            "grid transition-all duration-500 ease-out",
             showCategories ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
           )}
         >
           <div className="overflow-hidden">
-            <div className="border-t border-border/50 px-3 py-3">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <div className="px-4 pb-6 pt-2">
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
                 Select Category
               </p>
               <div className="flex flex-wrap gap-2">
@@ -122,15 +123,16 @@ export function ArticleComposer() {
                   return (
                     <button
                       key={category.id}
+                      type="button"
                       onClick={() => setSelectedCategory(category.id)}
                       className={cn(
-                        "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200",
+                        "flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-semibold transition-all duration-300",
                         selectedCategory === category.id
-                          ? "border-emerald-500/50 bg-emerald-500/20 text-emerald-400"
-                          : "border-border/50 bg-secondary/50 text-muted-foreground hover:border-border hover:bg-accent hover:text-foreground"
+                          ? "bg-white text-black"
+                          : "bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white font-light"
                       )}
                     >
-                      <Icon className="h-3.5 w-3.5" />
+                      <Icon className="h-4 w-4" />
                       {category.label}
                     </button>
                   )

@@ -3,9 +3,33 @@
 import * as React from "react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-import { Sparkles, User as UserIcon, Users, UserPlus } from "lucide-react"
+import { Crown, Gem, Shield, Sprout, Sparkles, User as UserIcon, Users, UserPlus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useUser } from "@clerk/nextjs"
+
+const getRankIcon = (rank: string) => {
+  const r = rank?.toLowerCase() || ""
+  if (r === "founder") return <Crown className="h-3 w-3 mr-1 fill-[#D4AF37]" style={{ filter: "drop-shadow(0 0 5px rgba(212,175,55,0.5))" }} />
+  if (r === "diamond") return <Gem className="h-3 w-3 mr-1 fill-[#E5E4E2]" />
+  if (r === "silver") return <Shield className="h-3 w-3 mr-1 fill-[#C0C0C0]" />
+  if (r === "newbie") return <Sprout className="h-3 w-3 mr-1 fill-[#4ADE80]" />
+  return null
+}
+
+const getRankBadgeStyles = (rank: string) => {
+  const r = rank?.toLowerCase() || ""
+  if (r === "founder") return "text-[#D4AF37] font-bold gold-glow"
+  if (r === "diamond") return "text-[#E5E4E2] font-bold"
+  if (r === "silver") return "text-[#C0C0C0] font-bold"
+  if (r === "newbie") return "text-[#4ADE80] font-bold"
+  return "text-muted-foreground"
+}
+
+const getRespectColor = (points: number) => {
+  if (points >= 1000) return "text-purple-400"
+  if (points >= 500) return "text-blue-400"
+  return "text-white"
+}
 
 interface HoverProfileCardProps {
   author: {
@@ -132,18 +156,17 @@ export function HoverProfileCard({ author, children }: HoverProfileCardProps) {
       {isVisible && (
         <div className="absolute left-0 top-full z-[100] mt-2 w-80 animate-in fade-in zoom-in-95 duration-200">
           <div className="overflow-hidden rounded-2xl border-none bg-black shadow-2xl">
-            <div className="relative h-20 w-full overflow-hidden bg-zinc-950">
+            <div className="relative h-24 w-full overflow-hidden">
               {live?.bannerUrl ? (
                 <img src={live.bannerUrl} alt="Banner" className="h-full w-full object-cover" />
               ) : (
-                <div className="h-full w-full bg-gradient-to-br from-zinc-900 to-black" />
+                <div className="h-full w-full bg-zinc-900" />
               )}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black" />
             </div>
 
             <div className="p-4">
-              <div className="flex items-start justify-between -mt-10">
-                <div className="relative h-16 w-16 overflow-hidden rounded-full bg-zinc-900 ring-4 ring-black">
+              <div className="flex items-center justify-between -mt-12">
+                <div className="relative h-16 w-16 overflow-hidden rounded-full bg-zinc-900 ring-4 ring-black shrink-0">
                   {author.avatar ? (
                     <img src={author.avatar} alt={author.name} className="h-full w-full object-cover" />
                   ) : (
@@ -152,14 +175,11 @@ export function HoverProfileCard({ author, children }: HoverProfileCardProps) {
                     </div>
                   )}
                 </div>
-              </div>
-
-              <div className="mt-3">
                 <button
                   onClick={handleFollow}
                   disabled={!isSignedIn || isOwnProfile || isFollowLoading || !live?.mongoId}
                   className={cn(
-                    "inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black transition-colors",
+                    "inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black transition-colors z-10",
                     (!isSignedIn || isOwnProfile || isFollowLoading || !live?.mongoId)
                       ? "bg-zinc-900 text-muted-foreground opacity-60 cursor-not-allowed"
                       : isFollowing
@@ -173,47 +193,41 @@ export function HoverProfileCard({ author, children }: HoverProfileCardProps) {
                 </button>
               </div>
 
-              <div className="mt-2">
+              <div className="flex flex-col mt-3">
                 <div className="flex items-center gap-2">
-                  <Link href={`/profile/${author.username}`} onClick={(e) => e.stopPropagation()} className="font-extrabold text-foreground">
+                  <Link href={`/profile/${author.username}`} onClick={(e) => e.stopPropagation()} className="font-extrabold text-white text-lg">
                     {author.name}
                   </Link>
-                  {author.isVerifiedExpert && (
-                    <div className="text-primary" title={author.expertField ? `Verified Expert in ${author.expertField}` : "Verified Expert"}>
-                      <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current">
-                        <path d="M22.5 12.5c0-1.58-.88-2.95-2.18-3.66.15-.44.23-.91.23-1.4 0-2.25-1.83-4.07-4.07-4.07-.49 0-.96.08-1.41.23-.71-1.3-2.08-2.18-3.66-2.18s-2.95.88-3.66 2.18c-.44-.15-.91-.23-1.4-.23-2.25 0-4.07 1.83-4.07 4.07 0 .49.08.96.23 1.41-1.3.71-2.18 2.08-2.18 3.66s.88 2.95 2.18 3.66c-.15.44-.23.91-.23 1.4 0 2.25 1.83 4.07 4.07 4.07.49 0 .96-.08 1.41-.23.71 1.3 2.08 2.18 3.66 2.18s2.95-.88 3.66-2.18c.44.15.91.23 1.4.23 2.25 0 4.07-1.83 4.07-4.07 0-.49-.08-.96-.23-1.41 1.3-.71 2.18-2.08 2.18-3.66zM10 17l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                      </svg>
-                    </div>
-                  )}
+                  <div className="flex items-center">
+                    {getRankIcon(live?.rank || author.rank)}
+                    <span className={cn("text-[10px] uppercase tracking-widest", getRankBadgeStyles(live?.rank || author.rank))}>
+                      {live?.rank || author.rank}
+                    </span>
+                  </div>
                 </div>
                 <p className="text-xs text-muted-foreground">@{author.username}</p>
               </div>
 
               {author.bio && (
-                <p className="mt-3 text-sm text-foreground/85 line-clamp-2 leading-normal">
+                <p className="mt-3 text-sm text-foreground/85 line-clamp-2 leading-normal font-light italic">
                   {author.bio}
                 </p>
               )}
 
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <Badge className={cn("h-5 px-2 text-[10px] font-black border-none", getRankColor(live?.rank || author.rank))}>
-                  {live?.rank || author.rank}
-                </Badge>
-                <div className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground">
-                  <Sparkles className="h-3 w-3 text-purple-300" />
-                  {(live?.respectPoints ?? author.respectPoints ?? 0).toLocaleString()} Respect
+              <div className="mt-6 flex items-center justify-between text-[10px] text-muted-foreground uppercase tracking-widest">
+                <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                  <Sparkles className="h-3.5 w-3.5 text-purple-400 fill-purple-400/20" />
+                  <span className={cn("text-sm", getRespectColor(live?.respectPoints ?? author.respectPoints ?? 0))}>
+                    {(live?.respectPoints ?? author.respectPoints ?? 0).toLocaleString()}
+                  </span>
+                  <span className="opacity-60">Respect</span>
                 </div>
-              </div>
-
-              <div className="mt-4 flex items-center gap-5 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1.5">
-                  <Users className="h-3.5 w-3.5" />
-                  <span className="font-black text-foreground">{(live?.followingCount ?? 0).toLocaleString()}</span>
+                  <span className="font-black text-white text-xs">{(live?.followingCount ?? 0).toLocaleString()}</span>
                   <span>Following</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <UserIcon className="h-3.5 w-3.5" />
-                  <span className="font-black text-foreground">{(live?.followersCount ?? 0).toLocaleString()}</span>
+                  <span className="font-black text-white text-xs">{(live?.followersCount ?? 0).toLocaleString()}</span>
                   <span>Followers</span>
                 </div>
               </div>

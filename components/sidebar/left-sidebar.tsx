@@ -19,6 +19,10 @@ import {
   Coffee,
   Crown,
   Landmark,
+  Gem,
+  Shield,
+  Seedling,
+  VenetianMask,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CATEGORIES } from "@/lib/constants"
@@ -36,6 +40,7 @@ interface NavItem {
   label: string
   href: string
   icon: React.ElementType
+  color?: string
 }
 
 const navItems: NavItem[] = [
@@ -46,18 +51,15 @@ const navItems: NavItem[] = [
   { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
 ]
 
-const bottomNavItems: NavItem[] = [
-  { label: "Help", href: "/help", icon: HelpCircle },
-]
-
-const categoryIcons: Record<string, React.ElementType> = {
-  "self-improvement": Sparkles,
-  "fitness-health": Dumbbell,
-  "finance-career": Wallet,
-  "relationships": Heart,
-  "philosophy": Brain,
-  "technology": Cpu,
-  "lifestyle": Coffee,
+const categoryIcons: Record<string, { icon: React.ElementType }> = {
+  "self-improvement": { icon: Sparkles },
+  "fitness-health": { icon: Dumbbell },
+  "finance-career": { icon: Wallet },
+  "relationships": { icon: Heart },
+  "philosophy": { icon: Brain },
+  "technology": { icon: Cpu },
+  "psychology": { icon: VenetianMask },
+  "lifestyle": { icon: Coffee },
 }
 
 interface LeftSidebarProps {
@@ -66,107 +68,86 @@ interface LeftSidebarProps {
 
 export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
   const { user, isSignedIn } = useUser()
-  const [stats, setStats] = useState<UserStats | null>(null)
-
-  useEffect(() => {
-    if (isSignedIn && user?.username) {
-      fetch(`/api/user/profile?username=${user.username}`)
-        .then(async res => {
-          const contentType = res.headers.get("content-type")
-          if (!contentType || !contentType.includes("application/json")) {
-            const text = await res.text()
-            console.error("[DEBUG] Profile API non-JSON:", text.substring(0, 100))
-            throw new Error("Non-JSON response")
-          }
-          return res.json()
-        })
-        .then(data => {
-          if (data.user) {
-            setStats({
-              rank: data.user.rank || "Newbie",
-              reputation: data.user.respectPoints || 0,
-              badgeLevel: data.user.badgeLevel || "Newbie",
-              respectPoints: data.user.respectPoints || 0
-            })
-          }
-        })
-        .catch(err => console.error("Failed to fetch sidebar stats:", err))
-    }
-  }, [isSignedIn, user?.username])
-
-  const getRankIcon = (rank: string) => {
-    switch (rank.toLowerCase()) {
-      case "caesar": return <Crown className="h-3 w-3 mr-1" />
-      case "senator": return <Landmark className="h-3 w-3 mr-1" />
-      default: return null
-    }
-  }
-
-  const getRankColor = (rank: string) => {
-    switch (rank.toLowerCase()) {
-      case "caesar": return "badge-caesar"
-      case "senator": return "badge-senator text-black"
-      case "diamond": return "badge-diamond"
-      case "platinum": return "badge-platinum"
-      case "gold": return "badge-gold"
-      case "silver": return "badge-silver"
-      case "bronze": return "badge-bronze"
-      default: return "bg-secondary text-muted-foreground"
-    }
-  }
 
   return (
-    <nav className="flex flex-col h-full gap-6 w-full overflow-y-auto no-scrollbar">
-      {/* Prestige Box - Modern Profile Card removed from here */}
-
-      {/* Main Navigation */}
-      <div className="flex flex-col gap-1 w-full">
-        {navItems.map((item) => {
-          const isActive = !activeCategory && item.href === "/"
-          return (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-4 rounded-full px-4 py-3 text-[17px] font-medium transition-all duration-200 w-fit max-w-full",
-                isActive
-                  ? "text-foreground font-bold"
-                  : "text-foreground hover:bg-accent"
-              )}
-            >
-              <item.icon className={cn("h-6 w-6 shrink-0", isActive && "stroke-[3px]")} />
-              <span className="truncate">{item.label}</span>
-            </Link>
-          )
-        })}
-      </div>
-
-      {/* Categories */}
-      <div className="flex flex-col gap-1 mt-4 w-full">
-        <h3 className="px-4 text-[11px] font-bold uppercase tracking-widest text-muted-foreground/50 mb-2">
-          Categories
-        </h3>
+    <nav className="flex flex-col h-full w-full bg-black py-0 pr-6 overflow-hidden">
+      {/* Scrollable Top Content */}
+      <div className="flex-1 flex flex-col gap-4 overflow-y-auto no-scrollbar">
+        {/* Main Navigation */}
         <div className="flex flex-col gap-1 w-full">
+          {navItems.map((item) => {
+            const isActive = !activeCategory && item.href === "/"
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-4 rounded-3xl px-2 py-2 text-[18px] transition-all duration-200 w-full group",
+                  isActive
+                    ? "text-white font-medium"
+                    : "text-white/70 font-medium hover:text-white"
+                )}
+              >
+                <item.icon 
+                  className={cn("h-7 w-7 shrink-0", isActive ? "stroke-[2px]" : "stroke-[1.5px] group-hover:stroke-[2px]")} 
+                />
+                <span className="truncate">{item.label}</span>
+              </Link>
+            )
+          })}
+        </div>
+
+        {/* Categories */}
+        <div className="flex flex-col gap-2 w-full">
+          <h3 className="px-2 text-[12px] font-bold uppercase tracking-[0.1em] text-zinc-600 mb-1">
+            Categories
+          </h3>
+          <div className="flex flex-col gap-1.5 w-full">
           {CATEGORIES.map((category) => {
-            const Icon = categoryIcons[category.slug] || Sparkles
+            const categoryData = categoryIcons[category.slug] || { icon: Sparkles }
+            const Icon = categoryData.icon
             const isActive = activeCategory === category.slug
             return (
               <Link
                 key={category.id}
                 href={`/?category=${category.slug}`}
                 className={cn(
-                  "flex items-center gap-4 rounded-full px-4 py-2 text-[15px] font-medium transition-all duration-200 w-fit max-w-full",
+                  "flex items-center gap-4 rounded-3xl px-2 py-1.5 text-[16px] transition-all duration-200 w-full group",
                   isActive
-                    ? "bg-accent text-foreground font-bold"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    ? "text-white font-medium"
+                    : "text-white/70 font-medium hover:text-white"
                 )}
               >
-                <Icon className="h-5 w-5 shrink-0" />
-                <span className="truncate">{category.label}</span>
-              </Link>
-            )
-          })}
+                  <Icon 
+                    className={cn("h-6 w-6 shrink-0", isActive ? "stroke-[2px]" : "stroke-[1.5px] group-hover:stroke-[2px]")} 
+                  />
+                  <span className="truncate">{category.label}</span>
+                </Link>
+              )
+            })}
+          </div>
         </div>
+      </div>
+
+      {/* Fixed Bottom Section (Always Visible) */}
+      <div className="flex flex-col gap-1 w-full mt-2 pt-2 border-t border-white/5 bg-black">
+        <Link
+          href="/help"
+          className="flex items-center gap-4 rounded-3xl px-2 py-2 text-[16px] font-medium text-white/70 hover:text-white transition-all w-full group"
+        >
+          <HelpCircle className="h-6 w-6 shrink-0 stroke-[1.5px] group-hover:stroke-[2px]" />
+          <span>Help Center</span>
+        </Link>
+        
+        <Link
+          href="/"
+          className="flex items-center gap-4 rounded-3xl px-2 py-2 text-[16px] font-medium text-white/70 hover:text-white transition-all w-full group"
+        >
+          <div className="h-6 w-6 flex items-center justify-center shrink-0">
+            <span className="text-lg font-serif">M</span>
+          </div>
+          <span>About Mantoric</span>
+        </Link>
       </div>
     </nav>
   )

@@ -4,8 +4,9 @@ import { useState } from "react"
 import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Heart, Clock, Crown, Trash2, Landmark, MessageSquare, ShieldCheck, Sparkles } from "lucide-react"
+import { Heart, Clock, Crown, Trash2, Landmark, MessageSquare, ShieldCheck, Sparkles, Gem, Shield, Sprout } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { CAESAR_CLERK_ID } from "@/lib/constants"
 import { formatDistanceToNow } from "date-fns"
@@ -39,6 +40,24 @@ export interface ArticleCardProps {
   comments: number
   readTime: number
   createdAt: Date | string
+}
+
+const getRankIcon = (rank: string) => {
+  const r = rank?.toLowerCase() || ""
+  if (r === "founder" || r === "caesar") return <Crown className="h-3 w-3 mr-1 fill-[#D4AF37]" style={{ filter: "drop-shadow(0 0 5px rgba(212,175,55,0.5))" }} />
+  if (r === "diamond") return <Gem className="h-3 w-3 mr-1 fill-[#E5E4E2]" />
+  if (r === "silver") return <Shield className="h-3 w-3 mr-1 fill-[#C0C0C0]" />
+  if (r === "newbie") return <Sprout className="h-3 w-3 mr-1 fill-[#4ADE80]" />
+  return null
+}
+
+const getRankBadgeStyles = (rank: string) => {
+  const r = rank?.toLowerCase() || ""
+  if (r === "founder" || r === "caesar") return "text-[#D4AF37] font-bold gold-glow"
+  if (r === "diamond") return "text-[#E5E4E2] font-bold"
+  if (r === "silver") return "text-[#C0C0C0] font-bold"
+  if (r === "newbie") return "text-[#4ADE80] font-bold"
+  return "text-muted-foreground"
 }
 
 function getRankColor(rank: string): string {
@@ -195,9 +214,9 @@ export function ArticleCard({
       tabIndex={0}
       onClick={handleCardClick}
       onKeyDown={handleCardKeyDown}
-      className="block cursor-pointer hover:bg-zinc-950/50 transition-colors"
+      className="block cursor-pointer hover:bg-white/5 transition-all duration-300 rounded-3xl"
     >
-      <div className="flex flex-col gap-3 p-4">
+      <div className="flex flex-col gap-3 p-6">
         {/* Author Header */}
         <div className="flex items-center justify-between">
           <HoverProfileCard author={{
@@ -223,18 +242,24 @@ export function ArticleCard({
                     className="object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-foreground">
+                  <div className="flex h-full w-full items-center justify-center text-sm font-medium text-foreground">
                     {author.name.charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
               <div className="flex flex-col">
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   <span
-                    className={`text-sm font-bold ${authorIsCaesar ? "caesar-name" : "text-foreground"} ${author.isPremium ? "animate-pulse drop-shadow-[0_0_10px_rgba(168,85,247,0.22)]" : ""}`}
+                    className={`text-sm font-semibold ${authorIsCaesar ? "caesar-name" : "text-foreground"} ${author.isPremium ? "animate-pulse drop-shadow-[0_0_10px_rgba(168,85,247,0.22)]" : ""}`}
                   >
                     {author.name}
                   </span>
+                  <div className="flex items-center">
+                    {getRankIcon(author.rank)}
+                    <span className={cn("text-[9px] uppercase tracking-widest", getRankBadgeStyles(author.rank))}>
+                      {author.rank}
+                    </span>
+                  </div>
                   {author.isVerifiedExpert && (
                     <div className="text-primary">
                       <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current">
@@ -242,17 +267,8 @@ export function ArticleCard({
                       </svg>
                     </div>
                   )}
-                  {hasSpecialRank ? (
-                    <Badge className={`mantoric-role-badge h-4 px-1 text-[9px] uppercase font-bold ${getRankColor(author.rank)} border-none shadow-none`}>
-                      {author.rank}
-                    </Badge>
-                  ) : (
-                    <span className="text-[11px] font-bold text-purple-300/90 tabular-nums">
-                      Level {respectLevel}
-                    </span>
-                  )}
                 </div>
-                <span className="text-xs text-muted-foreground">@{author.username || 'user'} · {formattedDate}</span>
+                <span className="text-[10px] text-muted-foreground font-light">@{author.username || 'user'} · {formattedDate}</span>
               </div>
             </div>
           </HoverProfileCard>
@@ -261,10 +277,10 @@ export function ArticleCard({
 
         {/* Content Section */}
         <div className="flex flex-col gap-1.5">
-          <h3 className="text-[19px] font-extrabold leading-tight text-foreground tracking-tight">
+          <h3 className="text-[19px] font-semibold leading-tight text-foreground tracking-tight">
             {title}
           </h3>
-          <p className="text-[15px] leading-normal text-muted-foreground/90 line-clamp-2">
+          <p className="text-[15px] leading-normal text-muted-foreground/90 line-clamp-2 font-light">
             {excerpt}
           </p>
         </div>
@@ -285,14 +301,6 @@ export function ArticleCard({
         {/* Stats Row */}
         <div className="flex items-center justify-between mt-1 text-muted-foreground/60">
           <div className="flex items-center gap-8">
-            <button 
-              onClick={handleRespect}
-              className="flex items-center gap-2 transition-colors group/respect hover:text-red-500"
-            >
-              <Heart className={`h-[18px] w-[18px] ${isRespected ? "fill-red-500 text-red-500" : ""}`} />
-              <span className={`text-xs font-medium ${isRespected ? "text-red-500" : ""}`}>{localLikes}</span>
-            </button>
-            
             <div className="flex items-center gap-2 hover:text-blue-500 cursor-pointer transition-colors">
               <MessageSquare className="h-[18px] w-[18px]" />
               <span className="text-xs font-medium">{comments}</span>

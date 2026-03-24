@@ -70,10 +70,12 @@ export function InfiniteFeed({ initialArticles, category }: InfiniteFeedProps) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-0">
+      <div className="flex flex-col gap-0">
         {articles.map((article) => (
-          <ArticleCard key={article.id} {...article} />
+          <div key={article.id} className="border-b border-white/5 last:border-0">
+            <ArticleCard {...article} />
+          </div>
         ))}
       </div>
 

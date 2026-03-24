@@ -69,11 +69,9 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
+--radius: 1.5rem; /* rounded-2xl */
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
@@ -180,7 +178,7 @@
   h1 {
     font-size: 1.875rem; /* text-3xl */
     line-height: 2.25rem;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.025em;
   }
   @media (min-width: 768px) {
@@ -206,6 +204,9 @@
 
 /* Custom utility classes */
 @layer utilities {
+  .gold-glow {
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5), 0 0 20px rgba(212, 175, 55, 0.2);
+  }
   .font-heading {
     font-family: var(--font-heading);
   }
