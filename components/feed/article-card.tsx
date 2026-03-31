@@ -4,7 +4,8 @@ import { useState } from "react"
 import { useUser } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Heart, Clock, Crown, Trash2, Landmark, MessageSquare, ShieldCheck, Sparkles, Gem, Shield, Sprout } from "lucide-react"
+import Link from "next/link"
+import { Heart, Clock, Crown, Trash2, Landmark, MessageSquare, ShieldCheck, Sparkles, Gem, Shield, Sprout, Zap } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
@@ -13,6 +14,7 @@ import { formatDistanceToNow } from "date-fns"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
 import { HoverProfileCard } from "@/components/feed/hover-profile-card"
+import { AuthorityBadge, getRankIcon, getRankBadgeStyles } from "@/components/ui/authority-badge"
 
 export interface ArticleCardProps {
   id: string
@@ -40,51 +42,6 @@ export interface ArticleCardProps {
   comments: number
   readTime: number
   createdAt: Date | string
-}
-
-const getRankIcon = (rank: string) => {
-  const r = rank?.toLowerCase() || ""
-  if (r === "founder" || r === "caesar") return <Crown className="h-3 w-3 mr-1 fill-[#D4AF37]" style={{ filter: "drop-shadow(0 0 5px rgba(212,175,55,0.5))" }} />
-  if (r === "diamond") return <Gem className="h-3 w-3 mr-1 fill-[#E5E4E2]" />
-  if (r === "silver") return <Shield className="h-3 w-3 mr-1 fill-[#C0C0C0]" />
-  if (r === "newbie") return <Sprout className="h-3 w-3 mr-1 fill-[#4ADE80]" />
-  return null
-}
-
-const getRankBadgeStyles = (rank: string) => {
-  const r = rank?.toLowerCase() || ""
-  if (r === "founder" || r === "caesar") return "text-[#D4AF37] font-bold gold-glow"
-  if (r === "diamond") return "text-[#E5E4E2] font-bold"
-  if (r === "silver") return "text-[#C0C0C0] font-bold"
-  if (r === "newbie") return "text-[#4ADE80] font-bold"
-  return "text-muted-foreground"
-}
-
-function getRankColor(rank: string): string {
-  switch (rank.toLowerCase()) {
-    case "caesar":
-      return "badge-caesar text-white"
-    case "senator":
-      return "badge-senator text-black"
-    case "praetor":
-      return "badge-praetor text-white"
-    case "gladiator":
-      return "badge-gladiator text-white"
-    case "newbie":
-      return "badge-newbie text-muted-foreground"
-    case "diamond":
-      return "badge-diamond text-black"
-    case "platinum":
-      return "badge-platinum text-black"
-    case "gold":
-      return "badge-gold text-black"
-    case "silver":
-      return "badge-silver text-black"
-    case "bronze":
-      return "badge-bronze text-black"
-    default:
-      return "bg-secondary text-muted-foreground border-border/50"
-  }
 }
 
 function isCaesar(clerkId?: string): boolean {
@@ -301,10 +258,32 @@ export function ArticleCard({
         {/* Stats Row */}
         <div className="flex items-center justify-between mt-1 text-muted-foreground/60">
           <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2 hover:text-blue-500 cursor-pointer transition-colors">
-              <MessageSquare className="h-[18px] w-[18px]" />
-              <span className="text-xs font-medium">{comments}</span>
+            {/* Respect (Like) - Unified Symbol */}
+            <div 
+              onClick={handleRespect}
+              className={cn(
+                "flex items-center gap-2 cursor-pointer transition-colors group",
+                isRespected ? "text-purple-400" : "hover:text-purple-400"
+              )}
+            >
+              <ShieldCheck className={cn("h-[18px] w-[18px]", isRespected && "fill-purple-500/20")} />
+              <span className="text-xs font-medium group-hover:text-purple-400 transition-colors">{localLikes}</span>
             </div>
+            
+            <div className="flex items-center gap-2 hover:text-blue-500 cursor-pointer transition-colors group">
+              <MessageSquare className="h-[18px] w-[18px]" />
+              <span className="text-xs font-medium group-hover:text-blue-500 transition-colors">{comments}</span>
+            </div>
+
+            {/* Discuss in Arena - Neural Interlinking (Zap Icon) */}
+            <Link 
+              href={`/forum/publish?title=${encodeURIComponent(`[Discussion] ${title}`)}&sourceId=${slug}&type=article`}
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-2 hover:text-amber-400 cursor-pointer transition-colors group"
+            >
+              <Zap className="h-[18px] w-[18px]" />
+              <span className="text-xs font-medium group-hover:text-amber-400 transition-colors">Arena</span>
+            </Link>
 
             <div className="flex items-center gap-2">
               <Clock className="h-[18px] w-[18px]" />

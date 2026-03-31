@@ -5,10 +5,10 @@ import { users, respects } from "@/lib/db/collections"
 // GET - Check if user can give respect and get target's respect count
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const targetUserId = params.userId
+    const { userId: targetUserId } = await params
     const session = await auth()
     
     const usersCol = await users()
@@ -72,10 +72,10 @@ export async function GET(
 // POST - Give respect to a user
 export async function POST(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const targetUserId = params.userId
+    const { userId: targetUserId } = await params
     const session = await auth()
     
     if (!session?.userId) {

@@ -112,7 +112,7 @@ export function LeaderboardPage() {
                   "ring-amber-700 shadow-[0_0_30px_rgba(184,115,51,0.4)]"
                 )}>
                   {entry.avatar ? (
-                    <Image src={entry.avatar} alt={entry.displayName} fill className="object-cover" />
+                    <Image src={entry.avatar} alt={entry.displayName} fill className="object-cover rounded-full" />
                   ) : (
                     <div className="w-full h-full bg-secondary flex items-center justify-center text-2xl font-bold">
                       {entry.displayName[0]}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -15,6 +15,7 @@ interface EditProfileDialogProps {
 }
 
 export function EditProfileDialog(props: EditProfileDialogProps) {
+  const [mounted, setMounted] = useState(false)
   const [open, setOpen] = useState(false)
   const [username, setUsername] = useState(props.username ?? "")
   const [bio, setBio] = useState(props.bio ?? "")
@@ -23,7 +24,19 @@ export function EditProfileDialog(props: EditProfileDialogProps) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const remaining = 160 - bio.length
+  
+  if (!mounted) {
+    return props.trigger || (
+      <Button variant="outline" size="sm" className="bg-background/60 backdrop-blur-md border-border/60 hover:bg-background/80">
+        Edit Profile
+      </Button>
+    )
+  }
 
   async function handleSave() {
     setSaving(true)

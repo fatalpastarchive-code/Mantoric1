@@ -33,6 +33,7 @@ const badgeGlows = {
 
 export function PrestigeBox({ badgeLevel: initialBadgeLevel, respectPoints: initialRespectPoints, bannerUrl: initialBannerUrl, isFloating }: PrestigeBoxProps) {
   const { user, isLoaded } = useUser()
+  const [mounted, setMounted] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [stats, setStats] = useState({
     badgeLevel: initialBadgeLevel || "Newbie",
@@ -43,6 +44,7 @@ export function PrestigeBox({ badgeLevel: initialBadgeLevel, respectPoints: init
   })
 
   useEffect(() => {
+    setMounted(true)
     if (isLoaded && user?.username) {
       fetch(`/api/user/profile?username=${user.username}`)
         .then(res => res.json())
@@ -61,7 +63,7 @@ export function PrestigeBox({ badgeLevel: initialBadgeLevel, respectPoints: init
     }
   }, [isLoaded, user?.username])
 
-  if (!isLoaded) {
+  if (!mounted || !isLoaded) {
     return <PrestigeBoxSkeleton />
   }
 

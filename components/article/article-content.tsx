@@ -152,7 +152,7 @@ export function ArticleContent({ article, author, isOwnArticle }: ArticleContent
                   <span className="text-xs text-zinc-500 font-light mt-0.5">{dateStr}</span>
                 </div>
 
-                <div className="flex items-center gap-6 text-sm">
+                <div className="flex items-center gap-4 sm:gap-6 text-sm">
                   <div className="flex flex-col items-center">
                     <span className="text-white font-bold">{author.respectPoints || 0}</span>
                     <span className="text-[10px] text-zinc-500 uppercase tracking-widest">Respect</span>
@@ -169,13 +169,13 @@ export function ArticleContent({ article, author, isOwnArticle }: ArticleContent
 
         {/* Article Content Area */}
         <div className="space-y-8">
-          <div className="flex items-start justify-between gap-6">
-            <h1 className="font-heading text-4xl font-extrabold leading-[1.1] tracking-tight text-white md:text-5xl lg:text-6xl text-balance flex-1">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+            <h1 className="font-heading text-3xl sm:text-4xl font-extrabold leading-[1.1] tracking-tight text-white md:text-5xl lg:text-6xl text-balance flex-1">
               {article.title}
             </h1>
             
-            {/* Title-Level Tactical Actions */}
-            <div className="flex items-center gap-3 mt-2 shrink-0">
+            {/* Title-Level Tactical Actions - Mobile: below title, Desktop: side */}
+            <div className="flex items-center gap-3 sm:mt-2 shrink-0">
               {author.userId && !isOwnArticle && (
                 <RespectWriterButton 
                   targetUserId={author.userId} 
@@ -193,6 +193,19 @@ export function ArticleContent({ article, author, isOwnArticle }: ArticleContent
                 )}
               >
                 <Heart className={cn("h-5 w-5", isLiked && "fill-current")} />
+              </button>
+              <button
+                onClick={handleLike}
+                disabled={isLoading}
+                className={cn(
+                  "p-2.5 rounded-xl border border-white/5 transition-all duration-300 flex items-center gap-2",
+                  isLiked 
+                    ? "bg-purple-500/20 text-purple-400 border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.2)]" 
+                    : "bg-white/5 text-zinc-500 hover:text-white hover:bg-white/10"
+                )}
+              >
+                <Crown className={cn("h-5 w-5", isLiked && "fill-current")} />
+                <span className="text-xs font-medium">{author.respectPoints || 0}</span>
               </button>
             </div>
           </div>

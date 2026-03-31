@@ -44,35 +44,33 @@ function normalizeMongoUri(uri: string): string {
   return url
 }
 
-const rawMongoUri = process.env.MONGODB_URI
-const MONGODB_URI = rawMongoUri ? normalizeMongoUri(rawMongoUri) : undefined
-
-if (!MONGODB_URI) {
-  throw new Error(
-    "Please define the MONGODB_URI environment variable in .env.local"
-  )
-}
-
 // Extend the global type so TypeScript doesn't complain
 declare global {
   // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined
 }
 
-let clientPromise: Promise<MongoClient>
+function getClientPromise(): Promise<MongoClient> {
+  const rawMongoUri = process.env.MONGODB_URI
+  const MONGODB_URI = rawMongoUri ? normalizeMongoUri(rawMongoUri) : undefined
 
-if (process.env.NODE_ENV === "development") {
-  if (!globalThis._mongoClientPromise) {
-    const client = new MongoClient(MONGODB_URI)
-    globalThis._mongoClientPromise = client.connect()
+  if (!MONGODB_URI) {
+    throw new Error(
+      "Please define the MONGODB_URI environment variable in .env.local"
+    )
   }
-  clientPromise = globalThis._mongoClientPromise
-} else {
-  const client = new MongoClient(MONGODB_URI)
-  clientPromise = client.connect()
-}
 
-export { clientPromise }
+  if (process.env.NODE_ENV === "development") {
+    if (!globalThis._mongoClientPromise) {
+      const client = new MongoClient(MONGODB_URI)
+      globalThis._mongoClientPromise = client.connect()
+    }
+    return globalThis._mongoClientPromise
+  } else {
+    const client = new MongoClient(MONGODB_URI)
+    return client.connect()
+  }
+}
 
 /**
  * Returns the default database instance.
@@ -82,6 +80,48 @@ export { clientPromise }
  *   const users = db.collection("users")
  */
 export async function getDb(): Promise<Db> {
-  const client = await clientPromise
+  const client = await getClientPromise()
   return client.db() // uses the database name from the URI
+}
+
+// ============================================
+// FORUM/CULTURE CLUSTER (Separate MongoDB)
+// ============================================
+const FORUM_MONGODB_URI = "mongodb+srv://forumdb:forumsifre@forum.bns5btn.mongodb.net/?appName=forum"
+
+declare global {
+  // eslint-disable-next-line no-var
+  var _forumMongoClientPromise: Promise<MongoClient> | undefined
+}
+
+function getForumClientPromise(): Promise<MongoClient> {
+  const MONGODB_URI = normalizeMongoUri(FORUM_MONGODB_URI)
+
+  if (process.env.NODE_ENV === "development") {
+    if (!globalThis._forumMongoClientPromise) {
+      const client = new MongoClient(MONGODB_URI)
+      globalThis._forumMongoClientPromise = client.connect()
+    }
+    return globalThis._forumMongoClientPromise
+  } else {
+    const client = new MongoClient(MONGODB_URI)
+    return client.connect()
+  }
+}
+
+/**
+ * Returns the forum/culture database instance.
+ * Used for forumTopics, forumComments, and culturalReviews collections.
+ * Falls back to main database if forum cluster is unreachable.
+ */
+export async function getForumDb(): Promise<Db> {
+  try {
+    const client = await getForumClientPromise()
+    return client.db("forum")
+  } catch (error) {
+    console.warn("[getForumDb] Forum cluster connection failed, falling back to main database:", error)
+    // Fallback to main database
+    const client = await getClientPromise()
+    return client.db()
+  }
 }

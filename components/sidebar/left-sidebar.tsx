@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { useUser } from "@clerk/nextjs"
 import { useEffect, useState } from "react"
@@ -45,9 +46,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: "Home", href: "/", icon: Home },
-  { label: "Trending", href: "/trending", icon: Flame },
   { label: "Articles", href: "/articles", icon: BookOpen },
   { label: "Forum", href: "/forum", icon: MessageSquare },
+  { label: "Culture", href: "/culture", icon: Sparkles },
   { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
 ]
 
@@ -76,7 +77,10 @@ export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
         {/* Main Navigation */}
         <div className="flex flex-col gap-1 w-full">
           {navItems.map((item) => {
-            const isActive = !activeCategory && item.href === "/"
+            const isActive = (!activeCategory && item.href === "/") || 
+                           (activeCategory === item.label.toLowerCase()) ||
+                           (item.href !== "/" && activeCategory === item.href.slice(1))
+            
             return (
               <Link
                 key={item.label}
@@ -84,8 +88,8 @@ export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
                 className={cn(
                   "flex items-center gap-4 rounded-3xl px-2 py-2 text-[18px] transition-all duration-200 w-full group",
                   isActive
-                    ? "text-white font-medium"
-                    : "text-white/70 font-medium hover:text-white"
+                    ? "text-white font-medium bg-white/5"
+                    : "text-white/70 font-medium hover:text-white hover:bg-white/5"
                 )}
               >
                 <item.icon 
@@ -143,8 +147,8 @@ export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
           href="/"
           className="flex items-center gap-4 rounded-3xl px-2 py-2 text-[16px] font-medium text-white/70 hover:text-white transition-all w-full group"
         >
-          <div className="h-6 w-6 flex items-center justify-center shrink-0">
-            <span className="text-lg font-serif">M</span>
+          <div className="h-6 w-6 flex items-center justify-center shrink-0 overflow-hidden rounded-sm">
+            <Image src="/M.jpg" alt="Mantoric" width={24} height={24} className="object-cover" />
           </div>
           <span>About Mantoric</span>
         </Link>

@@ -33,6 +33,7 @@ import { Badge } from "@/components/ui/badge"
 import { CAESAR_CLERK_ID } from "@/lib/constants"
 import { resolveMantoricRole, type MantoricRole } from "@/lib/auth/roles"
 import { format } from "date-fns"
+import { getUserCulturalReviews } from "@/lib/actions/cultural-review-actions"
 
 function getRankColor(rank: string): string {
   const r = rank.toLowerCase()
@@ -139,14 +140,19 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const reputation = calculateReputation(respectPoints, profileUser.articlesRead || 0)
   const expertBadge = (profileUser as any).isVerifiedExpert ? { label: (profileUser as any).expertField || "Expert", color: "bg-blue-500/10 text-blue-400 border-blue-500/20" } : null
 
-  // Prepare media items for CultureTab
-  const mediaItems = [
-    ...((profileUser as any).readBooks || []).map((b: any) => ({ ...b, type: "book" as const })),
-    ...((profileUser as any).watchedMedia || []).map((m: any) => ({ 
-      ...m, 
-      type: m.type === "movie" ? "movie" as const : "series" as const 
-    }))
-  ].sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
+  // Fetch cultural reviews from the proper collection
+  const { reviews: culturalReviewsList = [] } = await getUserCulturalReviews(profileUser.clerkId || profileUser._id.toString())
+  
+  const mediaItems = culturalReviewsList.map(review => ({
+    id: review._id,
+    type: review.type.toLowerCase() as "book" | "movie" | "series",
+    title: review.title,
+    rating: review.rating,
+    review: review.review,
+    addedAt: new Date(review.createdAt),
+    imageUrl: review.imageUrl,
+    quote: review.quote
+  }))
 
   const profileContent = (
     <div className="flex flex-col min-h-screen bg-background">

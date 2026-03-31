@@ -39,6 +39,8 @@ export async function GET(req: NextRequest) {
         isVerifiedExpert: user.isVerifiedExpert || false,
         expertField: user.expertField || "",
         onboardingCompleted: user.onboardingCompleted || false,
+        activeTheme: user.activeTheme || "dark-purple",
+        unlockedThemes: user.unlockedThemes || ["dark-purple", "classic-black"],
       }
     })
   } catch (error) {

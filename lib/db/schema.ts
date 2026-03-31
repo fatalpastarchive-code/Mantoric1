@@ -6,6 +6,116 @@
  */
 
 // ============================================
+// SUPPORT INTENT SCHEMA
+// ============================================
+export interface SupportIntent {
+  _id: string
+  userId?: string
+  amount: string
+  category: "Monthly" | "One-time"
+  userEmail?: string
+  createdAt: Date
+}
+
+// ============================================
+// PLATFORM STATS SCHEMA
+// ============================================
+export interface PlatformStats {
+  _id: string
+  totalViews: number
+  totalRespects: number
+  activeUsers: number
+  updatedAt: Date
+}
+
+// ============================================
+// FORUM TOPIC SCHEMA
+// ============================================
+export type ForumTopicType = "GENERAL" | "ARTICLE_REF" | "CULTURE_REF"
+
+export interface ForumTopic {
+  _id: string
+  title: string
+  content: string // Markdown
+  authorId: string
+  authorName?: string
+  category: string
+  type: ForumTopicType
+  relatedCultureId?: string
+  relatedArticleId?: string
+  views: number
+  likesCount: number
+  repliesCount: number
+  isPinned: boolean
+  isLocked: boolean
+  createdAt: Date
+  updatedAt: Date
+  author?: {
+    id: string
+    clerkId?: string
+    username?: string
+    name: string
+    avatar?: string | null
+    rank: string
+    xp: number
+    respectPoints?: number
+    bio?: string
+  }
+}
+
+export interface ForumComment {
+  _id: string
+  topicId: string
+  authorId: string
+  authorName?: string
+  content: string
+  likesCount: number
+  isEdited: boolean
+  isDeleted: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
+// ============================================
+// SUPPORT ANALYTICS SCHEMA
+// ============================================
+export interface SupportAnalytics {
+  _id: string
+  views: number
+  clicks: number
+  updatedAt: Date
+}
+
+// ============================================
+// CULTURAL REVIEW SCHEMA (TMDB & Google Books)
+// ============================================
+export type CulturalType = "MOVIE" | "SERIES" | "BOOK"
+
+export interface CulturalReview {
+  _id: string
+  userId: string
+  type: CulturalType
+  externalId: string
+  title: string
+  imageUrl: string
+  quote?: string
+  review: string
+  rating: number // 1-10
+  createdAt: Date
+  author?: {
+    id: string
+    clerkId?: string
+    username?: string
+    name: string
+    avatar?: string | null
+    rank: string
+    xp: number
+    respectPoints?: number
+    bio?: string
+  }
+}
+
+// ============================================
 // USER SCHEMA
 // ============================================
 export interface User {
@@ -27,8 +137,9 @@ export interface User {
   followersCount: number
   followingCount: number
   respectPoints: number      // Total respect received from other users
-  lastRespectGivenAt?: Date  // When user last gave respect (monthly limit)
-  lastRespectGivenDate?: Date // Alias for compatibility with newer UI/API naming
+  respectCapacity: number    // Max respects that can be given (starts at 1, increases with received respect)
+  lastRespectGivenAt?: Date  // When user last gave respect (7-day cooldown)
+  lastRespectGivenDate?: Date // Alias for compatibility
   rank: UserRank
   badgeLevel: BadgeLevel     // Newbie, Copper, Silver, Gold, Diamond
   badges: Badge[]
@@ -64,7 +175,7 @@ export interface User {
   likesReceived: number
   
   // Metadata
-  role: "user" | "moderator" | "admin"
+  role: "user" | "moderator" | "admin" | "senator" | "gladiator" | "caesar"
   isVerified: boolean
   isVerifiedExpert: boolean // Professional verification
   expertField?: string      // Field of expertise

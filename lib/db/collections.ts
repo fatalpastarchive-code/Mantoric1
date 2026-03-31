@@ -5,7 +5,7 @@
  * interfaces already defined in schema.ts — zero duplication.
  */
 import type { Collection } from "mongodb"
-import { getDb } from "./mongodb"
+import { getDb, getForumDb } from "./mongodb"
 import type { 
   User, 
   Article, 
@@ -16,7 +16,13 @@ import type {
   Rating, 
   QuizAttempt, 
   UserReview,
-  Quiz
+  Quiz,
+  CulturalReview,
+  SupportAnalytics,
+  SupportIntent,
+  PlatformStats,
+  ForumTopic,
+  ForumComment
 } from "./schema"
 
 export async function users(): Promise<Collection<User>> {
@@ -79,4 +85,34 @@ export interface RespectRecord {
 export async function respects(): Promise<Collection<RespectRecord>> {
   const db = await getDb()
   return db.collection<RespectRecord>("respects")
+}
+
+export async function culturalReviews(): Promise<Collection<CulturalReview>> {
+  const db = await getForumDb()
+  return db.collection<CulturalReview>("culturalReviews")
+}
+
+export async function supportAnalytics(): Promise<Collection<SupportAnalytics>> {
+  const db = await getDb()
+  return db.collection<SupportAnalytics>("supportAnalytics")
+}
+
+export async function supportIntents(): Promise<Collection<SupportIntent>> {
+  const db = await getDb()
+  return db.collection<SupportIntent>("supportIntents")
+}
+
+export async function platformStats(): Promise<Collection<PlatformStats>> {
+  const db = await getDb()
+  return db.collection<PlatformStats>("platformStats")
+}
+
+export async function forumTopics(): Promise<Collection<ForumTopic>> {
+  const db = await getForumDb()
+  return db.collection<ForumTopic>("forumTopics")
+}
+
+export async function forumComments(): Promise<Collection<ForumComment>> {
+  const db = await getForumDb()
+  return db.collection<ForumComment>("forumComments")
 }

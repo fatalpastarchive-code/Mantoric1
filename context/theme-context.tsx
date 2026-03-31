@@ -20,13 +20,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (isSignedIn && user?.username) {
-      fetch(`/api/user/profile?username=${user.username}`)
+      const apiUrl = `/api/user/profile?username=${encodeURIComponent(user.username)}`
+      fetch(apiUrl)
         .then(async res => {
           const contentType = res.headers.get("content-type")
-          if (!contentType || !contentType.includes("application/json")) {
+          if (!res.ok || !contentType || !contentType.includes("application/json")) {
             const text = await res.text()
-            console.error("[DEBUG] Theme API non-JSON:", text.substring(0, 100))
-            throw new Error("Non-JSON response")
+            console.error(`[DEBUG] Theme API Error (${res.status}):`, text.substring(0, 100))
+            throw new Error(`Non-JSON response or error: ${res.status}`)
           }
           return res.json()
         })
@@ -44,10 +45,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setThemeState(newTheme)
     document.documentElement.className = newTheme
     if (isSignedIn) {
-      await fetch("/api/user/settings", {
+      await fetch("/api/user/theme", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ activeTheme: newTheme }),
+        body: JSON.stringify({ themeId: newTheme }),
       })
     }
   }

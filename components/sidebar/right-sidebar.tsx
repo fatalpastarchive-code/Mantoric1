@@ -6,14 +6,18 @@ import Link from "next/link"
 import { DailyAxiom } from "@/components/widgets/daily-axiom"
 import { MarketWidget } from "@/components/widgets/market-widget"
 import { TrendingArticlesWidget } from "@/components/widgets/trending-articles"
+import { BestEntriesWidget } from "@/components/widgets/best-entries"
 import { PrestigeBox } from "./prestige-box"
+import { SupportMantoricBox } from "./support-mantoric-box"
+import { SupportInterestBox } from "./support-interest-box"
 import { cn } from "@/lib/utils"
 
 interface RightSidebarProps {
   category?: string
+  showBestEntries?: boolean
 }
 
-export function RightSidebar({ category }: RightSidebarProps) {
+export function RightSidebar({ category, showBestEntries = false }: RightSidebarProps) {
   const { isSignedIn } = useUser()
   
   // Map category slugs to proper names for the finance widget
@@ -21,14 +25,21 @@ export function RightSidebar({ category }: RightSidebarProps) {
 
   return (
     <div className="flex flex-col gap-2">
+      {/* Support Interest Box - Intent Collection */}
+      <SupportInterestBox />
+
       {/* Daily Axiom - Always visible */}
       <DailyAxiom />
 
       {/* Category Specific Widget - Finance gets Market */}
       {isFinance && <MarketWidget />}
 
-      {/* Trending Articles / You Must Know - Dynamic based on category */}
-      <TrendingArticlesWidget category={category} limit={3} />
+      {/* Best Entries for Forum, Trending Articles for others */}
+      {showBestEntries ? (
+        <BestEntriesWidget />
+      ) : (
+        <TrendingArticlesWidget category={category} limit={3} />
+      )}
     </div>
   )
 }

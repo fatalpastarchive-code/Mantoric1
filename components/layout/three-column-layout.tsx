@@ -1,7 +1,8 @@
 "use client"
 
 import { ReactNode, useState, useEffect, useRef } from "react"
-import { Search, Crown, Landmark, BookOpen, User as UserIcon, X, Home, Menu } from "lucide-react"
+import Image from "next/image"
+import { Search, Crown, Landmark, BookOpen, User as UserIcon, X, Home, Menu, Zap, ShieldCheck } from "lucide-react"
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -46,14 +47,17 @@ export function ThreeColumnLayout({
   const { user } = useUser()
   const router = useRouter()
   const pathname = usePathname()
+  const [mounted, setMounted] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [searchResults, setSearchResults] = useState<SearchResult | null>(null)
   const [isSearching, setIsSearching] = useState(false)
   const [showResults, setShowResults] = useState(false)
-  const [userStats, setUserStats] = useState<{ rank: string; badgeLevel: string } | null>(null)
+  const [userStats, setUserStats] = useState<{ rank: string; badgeLevel: string; respectCapacity: number; respectPoints: number } | null>(null)
+  const [respectStatus, setRespectStatus] = useState<{ canGive: boolean; daysRemaining: number } | null>(null)
 
   useEffect(() => {
+    setMounted(true)
     if (user?.username) {
       fetch(`/api/user/profile?username=${user.username}`)
         .then(res => res.json())
@@ -61,11 +65,26 @@ export function ThreeColumnLayout({
           if (data.user) {
             setUserStats({
               rank: data.user.rank || "Newbie",
-              badgeLevel: data.user.badgeLevel || "Newbie"
+              badgeLevel: data.user.badgeLevel || "Newbie",
+              respectCapacity: data.user.respectCapacity || 1,
+              respectPoints: data.user.respectPoints || 0
             })
           }
         })
         .catch(err => console.error("Failed to fetch topbar user stats:", err))
+
+      // Fetch respect status
+      fetch("/api/user/respect")
+        .then(res => res.json())
+        .then(data => {
+          if (data.respectPoints !== undefined) {
+            setRespectStatus({
+              canGive: data.canGiveRespect,
+              daysRemaining: data.daysRemaining
+            })
+          }
+        })
+        .catch(err => console.error("Failed to fetch respect status:", err))
     }
   }, [user?.username])
 
@@ -198,12 +217,15 @@ export function ThreeColumnLayout({
           {/* Logo Portion - Aligned with Left Sidebar */}
           <div className="w-[260px] shrink-0 hidden lg:flex px-2">
             <Link href="/" className="flex items-center gap-3">
+              <div className="h-8 w-8 overflow-hidden rounded-sm">
+                <Image src="/M.jpg" alt="Mantoric" width={32} height={32} className="object-cover" />
+              </div>
               <span className="text-xl font-bold tracking-tight text-white">Mantoric</span>
             </Link>
           </div>
 
           {/* Search Portion - Aligned with Center Column */}
-          <div className="flex-1 lg:flex-none lg:w-[650px] flex items-center px-0">
+          <div className="flex-1 lg:flex-none lg:w-[550px] flex items-center px-0">
             <div 
               className="relative w-full group cursor-pointer"
               onClick={() => setIsSearchModalOpen(true)}
@@ -215,9 +237,21 @@ export function ThreeColumnLayout({
             </div>
           </div>
 
-          {/* Right Portion - User Profile & Badge */}
-          <div className="hidden xl:flex xl:w-[260px] shrink-0 items-center justify-end px-4">
+          {/* Right Portion - Respect Energy & User Profile */}
+          <div className="hidden xl:flex xl:w-[260px] shrink-0 items-center justify-end px-4 gap-3">
             <SignedIn>
+              {/* Respect Badge - Purple Emblem with Balance (Non-clickable) */}
+              {mounted && userStats && (
+                <div 
+                  className="flex items-center gap-2 px-3 py-1.5 bg-purple-950/30 border border-purple-500/30 rounded-full cursor-default"
+                  title="Your Respect Points"
+                >
+                  <ShieldCheck className="h-4 w-4 text-purple-400" />
+                  <span className="text-sm font-bold text-purple-200">
+                    {userStats.respectPoints || 0}
+                  </span>
+                </div>
+              )}
               <Link 
                 href={user?.username ? `/profile/${user.username}` : "#"} 
                 className="flex items-center gap-3 hover:bg-white/5 p-1 pr-2 rounded-full transition-all group"
@@ -226,11 +260,11 @@ export function ThreeColumnLayout({
                   <div className="flex items-center gap-2">
                     <span className={cn(
                       "text-sm font-bold tracking-tight transition-colors",
-                      userStats ? getRankTextColor(userStats.rank !== "Newbie" ? userStats.rank : userStats.badgeLevel) : "text-white"
+                      mounted && userStats ? getRankTextColor(userStats.rank !== "Newbie" ? userStats.rank : userStats.badgeLevel) : "text-white"
                     )}>
                       {user?.fullName || user?.username}
                     </span>
-                    {userStats && (userStats.rank !== "Newbie" || userStats.badgeLevel !== "Newbie") && (
+                    {mounted && userStats && (userStats.rank !== "Newbie" || userStats.badgeLevel !== "Newbie") && (
                       <div className={cn(
                         "px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border flex items-center",
                         getRankBadgeColor(userStats.rank !== "Newbie" ? userStats.rank : userStats.badgeLevel)
@@ -395,6 +429,9 @@ export function ThreeColumnLayout({
             <SheetContent side="left" className="p-0 w-72">
                <SheetHeader className="px-4 py-6">
                  <SheetTitle className="text-left flex items-center gap-3">
+                   <div className="h-8 w-8 overflow-hidden rounded-sm">
+                     <Image src="/M.jpg" alt="Mantoric" width={32} height={32} className="object-cover" />
+                   </div>
                    Mantoric
                  </SheetTitle>
                  <SheetDescription className="text-left">

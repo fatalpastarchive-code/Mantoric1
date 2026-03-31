@@ -1,6 +1,12 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Space_Grotesk } from 'next/font/google'
+import { Inter, Space_Grotesk, Cormorant_Garamond } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { ClerkProvider } from "@clerk/nextjs"
+import { dark } from "@clerk/themes"
+import { Toaster } from "@/components/ui/sonner"
+import { ThemeProvider } from "@/context/theme-context"
+import { cn } from "@/lib/utils"
+import { RespectNotification } from "@/components/notifications/respect-notification"
 import './globals.css'
 
 const inter = Inter({ 
@@ -13,7 +19,6 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
-import { Cormorant_Garamond } from 'next/font/google'
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -27,25 +32,17 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/logo1.png',
-        type: 'image/png',
+        url: '/M.jpg',
+        type: 'image/jpeg',
       },
     ],
-    apple: '/logo1.png',
+    apple: '/M.jpg',
   },
 }
-
-import { ClerkProvider } from "@clerk/nextjs"
-import { dark } from "@clerk/themes"
-import { Toaster } from "@/components/ui/sonner"
-import { ThemeProvider } from "@/context/theme-context"
-import { cn } from "@/lib/utils"
 
 export const viewport: Viewport = {
   themeColor: '#000000',
 }
-
-import { RespectNotification } from "@/components/notifications/respect-notification"
 
 export default function RootLayout({
   children,
