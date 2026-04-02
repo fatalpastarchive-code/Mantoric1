@@ -6,7 +6,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Award, Sparkles, Zap } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatMetric } from "@/lib/utils"
 
 interface PrestigeBoxProps {
   badgeLevel?: "Newbie" | "Copper" | "Silver" | "Gold" | "Diamond"
@@ -186,7 +186,7 @@ export function PrestigeBox({ badgeLevel: initialBadgeLevel, respectPoints: init
             <div className="flex flex-col">
               <span className="text-[8px] uppercase font-bold text-zinc-500 leading-none tracking-widest mb-0.5">Respect</span>
               <span className={cn("text-sm font-black tabular-nums leading-none", getRespectColor(respectPoints))}>
-                {respectPoints.toLocaleString()}
+                {formatMetric(respectPoints)}
               </span>
             </div>
           </div>

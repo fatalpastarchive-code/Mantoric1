@@ -88,8 +88,8 @@ export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
                 className={cn(
                   "flex items-center gap-4 rounded-3xl px-2 py-2 text-[18px] transition-all duration-200 w-full group",
                   isActive
-                    ? "text-white font-medium bg-white/5"
-                    : "text-white/70 font-medium hover:text-white hover:bg-white/5"
+                    ? "text-white font-medium"
+                    : "text-white/70 font-medium hover:text-white"
                 )}
               >
                 <item.icon 

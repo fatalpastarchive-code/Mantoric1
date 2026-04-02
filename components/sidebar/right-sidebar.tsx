@@ -9,7 +9,7 @@ import { TrendingArticlesWidget } from "@/components/widgets/trending-articles"
 import { BestEntriesWidget } from "@/components/widgets/best-entries"
 import { PrestigeBox } from "./prestige-box"
 import { SupportMantoricBox } from "./support-mantoric-box"
-import { SupportInterestBox } from "./support-interest-box"
+import { SupportIntentBox } from "./support-interest-box"
 import { cn } from "@/lib/utils"
 
 interface RightSidebarProps {
@@ -25,8 +25,8 @@ export function RightSidebar({ category, showBestEntries = false }: RightSidebar
 
   return (
     <div className="flex flex-col gap-2">
-      {/* Support Interest Box - Intent Collection */}
-      <SupportInterestBox />
+      {/* Support Intent Box - Intent Collection */}
+      <SupportIntentBox />
 
       {/* Daily Axiom - Always visible */}
       <DailyAxiom />

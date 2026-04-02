@@ -2,17 +2,18 @@
 
 import { ReactNode, useState, useEffect, useRef } from "react"
 import Image from "next/image"
-import { Search, Crown, Landmark, BookOpen, User as UserIcon, X, Home, Menu, Zap, ShieldCheck } from "lucide-react"
+import { Search, Crown, Landmark, BookOpen, User as UserIcon, X, Home, Menu, Zap, ShieldCheck, Sparkles, Palette as PaletteIcon } from "lucide-react"
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { CAESAR_CLERK_ID } from "@/lib/constants"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { cn, formatMetric } from "@/lib/utils"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { PrestigeBox } from "@/components/sidebar/prestige-box"
-import { Award } from "lucide-react"
+import { Award, Palette } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface ThreeColumnLayoutProps {
   leftSidebar: ReactNode
@@ -210,9 +211,9 @@ export function ThreeColumnLayout({
   }
 
   return (
-    <div className="min-h-screen bg-black">
-      {/* Top Bar - Restore & Glassmorphism */}
-      <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-black/60 backdrop-blur-md flex justify-center border-none">
+    <div className="min-h-screen bg-background infinite-horizon">
+      {/* Top Bar */}
+      <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-background/60 backdrop-blur-md flex justify-center border-none">
         <div className="flex w-full max-w-[1170px] items-center px-0">
           {/* Logo Portion - Aligned with Left Sidebar */}
           <div className="w-[260px] shrink-0 hidden lg:flex px-2">
@@ -248,7 +249,7 @@ export function ThreeColumnLayout({
                 >
                   <ShieldCheck className="h-4 w-4 text-purple-400" />
                   <span className="text-sm font-bold text-purple-200">
-                    {userStats.respectPoints || 0}
+                    {formatMetric(userStats.respectPoints || 0)}
                   </span>
                 </div>
               )}
@@ -281,6 +282,17 @@ export function ThreeColumnLayout({
                 </div>
               </Link>
             </SignedIn>
+            <SignedOut>
+              <SignUpButton mode="modal">
+                <Button 
+                  className="rounded-full bg-white hover:bg-zinc-200 font-bold text-xs px-6 h-10 border-none text-black shadow-lg transition-all flex items-center gap-2"
+                  style={{ fontFamily: 'var(--font-cormorant), serif', letterSpacing: '0.05em' }}
+                >
+                  <Sparkles className="h-3.5 w-3.5 fill-black" />
+                  Sign Up
+                </Button>
+              </SignUpButton>
+            </SignedOut>
           </div>
         </div>
       </header>
@@ -388,8 +400,15 @@ export function ThreeColumnLayout({
           </aside>
 
           {/* Center - Main Feed */}
-          <main className="w-full max-w-[650px] min-h-screen border-none bg-black">
-            {mainContent}
+          <main className="w-full max-w-[650px] min-h-screen border-none bg-background relative z-10">
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              {mainContent}
+            </motion.div>
           </main>
 
           {/* Right Sidebar - Widgets/Stats */}
@@ -422,6 +441,7 @@ export function ThreeColumnLayout({
                <button className="p-2"><UserIcon className="h-6 w-6 text-muted-foreground" /></button>
              </SignInButton>
           </SignedOut>
+          {/* Settings moved to Profile Page */}
           <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
             <button onClick={() => setMobileNavOpen(true)} className="p-2">
               <Menu className="h-6 w-6 text-muted-foreground" />

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Trophy, Crown, Medal, Award, Sparkles, TrendingUp, Search } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { cn, formatMetric } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -134,7 +134,7 @@ export function LeaderboardPage() {
               
               <div className="bg-secondary/50 rounded-2xl px-4 py-2 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-purple-400" />
-                <span className="font-black text-lg">{entry.respectPoints.toLocaleString()}</span>
+                <span className="font-black text-lg">{formatMetric(entry.respectPoints)}</span>
                 <span className="text-[10px] uppercase font-bold text-muted-foreground">Respect</span>
               </div>
             </div>
@@ -179,7 +179,7 @@ export function LeaderboardPage() {
               <div className="text-right min-w-[100px]">
                 <div className="flex items-center justify-end gap-1.5 font-black text-foreground">
                   <Sparkles className="w-4 h-4 text-purple-400" />
-                  {entry.respectPoints.toLocaleString()}
+                  {formatMetric(entry.respectPoints)}
                 </div>
                 <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">Respect Points</div>
               </div>

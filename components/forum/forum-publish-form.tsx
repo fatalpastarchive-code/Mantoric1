@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import ReactMarkdown from "react-markdown"
@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { createForumTopic } from "@/lib/actions/forum-actions"
+import { getBrotherhoodStatus } from "@/lib/actions/support-intent-actions"
+import { ShieldAlert } from "lucide-react"
 
 const FORUM_CATEGORIES = [
   { id: "GENERAL", label: "General" },
@@ -49,9 +51,20 @@ export function ForumPublishForm() {
 
   const [title, setTitle] = useState(initialTitle)
   const [category, setCategory] = useState("GENERAL")
+  const [tags, setTags] = useState("")
+  const [imageUrl, setImageUrl] = useState("")
   const [content, setContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [view, setView] = useState<"edit" | "preview">("edit")
+  const [isBanned, setIsBanned] = useState(false)
+
+  useEffect(() => {
+    async function checkBan() {
+      const { isPostBanned } = await getBrotherhoodStatus()
+      setIsBanned(isPostBanned)
+    }
+    checkBan()
+  }, [])
 
   // Toolbar actions
   const insertText = (before: string, after: string = "") => {
@@ -93,6 +106,8 @@ export function ForumPublishForm() {
         title: title.trim(),
         content: content.trim(),
         category: category.toLowerCase(),
+        tags: tags.split(",").map(t => t.trim()).filter(t => t !== ""),
+        imageUrl: imageUrl.trim(),
         type: "GENERAL",
         relatedArticleId: sourceType === "article" ? sourceId : undefined,
         relatedCultureId: sourceType === "cultural" || sourceType === "culture" ? sourceId : undefined
@@ -105,7 +120,7 @@ export function ForumPublishForm() {
 
       toast.success("Discussion started!")
       if (res.topic?._id) {
-        router.push(`/forum/topic/${res.topic._id}`)
+        router.push(`/forum/topic/${String(res.topic._id)}`)
       } else {
         router.push("/forum")
       }
@@ -148,6 +163,29 @@ export function ForumPublishForm() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="imageUrl" className="text-sm font-bold uppercase tracking-wider text-zinc-500">Cover Image URL</Label>
+                <Input
+                  id="imageUrl"
+                  placeholder="https://..."
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  className="h-11 border-zinc-800 bg-zinc-900/50"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tags" className="text-sm font-bold uppercase tracking-wider text-zinc-500">Tags (comma separated)</Label>
+                <Input
+                  id="tags"
+                  placeholder="philosophy, Stoicism, Aurelius"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  className="h-11 border-zinc-800 bg-zinc-900/50"
+                />
+              </div>
             </div>
           </div>
 
@@ -222,13 +260,20 @@ export function ForumPublishForm() {
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting || !title.trim() || title.length < 4 || !content.trim()}
-              className="rounded-full bg-purple-600 px-8 font-bold text-white hover:bg-purple-500 shadow-lg shadow-purple-500/20"
-            >
-              {isSubmitting ? "Publishing..." : "Publish to Arena"}
-            </Button>
+            {isBanned ? (
+              <div className="flex items-center gap-2 px-6 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-black uppercase tracking-widest">
+                <ShieldAlert className="h-4 w-4" />
+                Your voice has been silenced by the Senate.
+              </div>
+            ) : (
+              <Button
+                type="submit"
+                disabled={isSubmitting || !title.trim() || title.length < 4 || !content.trim()}
+                className="rounded-full bg-purple-600 px-8 font-bold text-white hover:bg-purple-500 shadow-lg shadow-purple-500/20"
+              >
+                {isSubmitting ? "Publishing..." : "Publish to Arena"}
+              </Button>
+            )}
           </div>
         </div>
       </form>

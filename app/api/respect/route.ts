@@ -123,6 +123,10 @@ export async function POST(request: NextRequest) {
             { clerkId: targetDoc.authorId },
             { $inc: { xp: 10 } }
           )
+          
+          // Sync Honor for Author
+          const { syncUserHonor } = await import("@/lib/actions/honor-actions")
+          await syncUserHonor(targetDoc.authorId)
         }
         // +2 XP to user who clicked respect
         await usersCol.updateOne(

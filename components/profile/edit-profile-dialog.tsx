@@ -5,6 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import { SignOutButton } from "@clerk/nextjs"
+import { LogOut, Settings } from "lucide-react"
 
 interface EditProfileDialogProps {
   username: string | null
@@ -32,8 +34,8 @@ export function EditProfileDialog(props: EditProfileDialogProps) {
   
   if (!mounted) {
     return props.trigger || (
-      <Button variant="outline" size="sm" className="bg-background/60 backdrop-blur-md border-border/60 hover:bg-background/80">
-        Edit Profile
+      <Button variant="outline" size="icon" className="rounded-full bg-background/60 backdrop-blur-md border-border/60 hover:bg-background/80">
+        <Settings className="h-4 w-4" />
       </Button>
     )
   }
@@ -74,8 +76,8 @@ export function EditProfileDialog(props: EditProfileDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {props.trigger || (
-          <Button variant="outline" size="sm" className="bg-background/60 backdrop-blur-md border-border/60 hover:bg-background/80">
-            Edit Profile
+          <Button variant="outline" size="icon" className="rounded-full bg-background/60 backdrop-blur-md border-border/60 hover:bg-background/80">
+            <Settings className="h-4 w-4" />
           </Button>
         )}
       </DialogTrigger>
@@ -142,7 +144,20 @@ export function EditProfileDialog(props: EditProfileDialogProps) {
             </p>
           )}
         </div>
-        <DialogFooter className="pt-4">
+        <DialogFooter className="pt-4 flex flex-col sm:flex-row gap-2">
+          <SignOutButton>
+            <Button
+              type="button"
+              variant="outline"
+              className="text-red-500 border-red-500/20 hover:bg-red-500/10"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </Button>
+          </SignOutButton>
+          
+          <div className="flex-1" />
+
           <Button
             type="button"
             variant="ghost"

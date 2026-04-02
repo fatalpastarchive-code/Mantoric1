@@ -12,7 +12,10 @@ export interface SupportIntent {
   _id: string
   userId?: string
   amount: string
+  amountValue?: number
   category: "Monthly" | "One-time"
+  frequency?: "Monthly" | "One-time"
+  tier?: "Supporter" | "Scholar" | "Patron" | "Founder's Circle"
   userEmail?: string
   createdAt: Date
 }
@@ -40,6 +43,8 @@ export interface ForumTopic {
   authorId: string
   authorName?: string
   category: string
+  tags?: string[]
+  imageUrl?: string
   type: ForumTopicType
   relatedCultureId?: string
   relatedArticleId?: string
@@ -140,15 +145,22 @@ export interface User {
   respectCapacity: number    // Max respects that can be given (starts at 1, increases with received respect)
   lastRespectGivenAt?: Date  // When user last gave respect (7-day cooldown)
   lastRespectGivenDate?: Date // Alias for compatibility
+  
+  // Imperial Command & Loyalty
+  isPostBanned?: boolean
+  hasInteractedWithDonation?: boolean
+  donationIntentAmount?: number
+  donationChoice?: 'YES' | 'NO'
+  
   rank: UserRank
   badgeLevel: BadgeLevel     // Newbie, Copper, Silver, Gold, Diamond
-  badges: Badge[]
+  badges: HonorMedal[]
   streak: number             // Reading streak in days
   lastAxiomReadAt?: Date     // To track daily streak
   
   // Legacy fields (kept for migration, will be removed)
   xp?: number
-  level?: number
+  level: number              // Calculated by respect milestones
   reputation?: number
   hype?: number
   
@@ -175,7 +187,7 @@ export interface User {
   likesReceived: number
   
   // Metadata
-  role: "user" | "moderator" | "admin" | "senator" | "gladiator" | "caesar"
+  role: UserRole
   isVerified: boolean
   isVerifiedExpert: boolean // Professional verification
   expertField?: string      // Field of expertise
@@ -233,16 +245,31 @@ export interface UserReview {
   createdAt: Date
 }
 
+export type UserRole = "CAESAR" | "SENATOR" | "LEGATE" | "GLADIATOR" | "CITIZEN"
+
+export type HonorMedal = 
+  | "EARLY_SUPPORTER" 
+  | "AXIOM_ARCHITECT" 
+  | "ARENA_VETERAN" 
+  | "PURVEYOR_OF_WISDOM" 
+  | "SILENCE_BREAKER"
+
 export type UserRank = "Newbie" | "Bronze" | "Silver" | "Gold" | "Platinum" | "Diamond"
 
 export type BadgeLevel = "Newbie" | "Copper" | "Silver" | "Gold" | "Diamond"
 
-export interface Badge {
-  id: string
-  name: string
-  description: string
-  icon: string
-  awardedAt: Date
+/**
+ * Calculates user level based on respectPoints milestones
+ * e.g., Level 1 = 0-10, Level 2 = 11-50, etc.
+ */
+export const calculateUserLevel = (respectPoints: number): number => {
+  if (respectPoints >= 1000) return 50 // Cap or custom logic
+  if (respectPoints >= 500) return 20
+  if (respectPoints >= 250) return 10
+  if (respectPoints >= 100) return 5
+  if (respectPoints >= 50) return 3
+  if (respectPoints >= 11) return 2
+  return 1
 }
 
 // ============================================
@@ -276,6 +303,21 @@ export const calculateReputation = (...args: number[]): number => {
   const respectPoints = args[0] ?? 0
   const articlesRead = args[1] ?? 0
   return respectPoints + Math.floor(articlesRead / 10)
+}
+
+/**
+ * Calculates user Axioms Score
+ * Axioms = (Forum Articles * 2) + (Culture Articles * 10) + (Total Respects on Articles) + (Total Comments on Articles)
+ * Culture posts (Articles) contribute 5x more weight to the score than standard forum entries.
+ * This is the primary dynamic authority metric for the platform.
+ */
+export function calculateAxiomsScore(
+  forumArticlesCount: number,
+  cultureArticlesCount: number,
+  totalRespectsOnArticles: number,
+  totalCommentsOnArticles: number
+): number {
+  return (forumArticlesCount * 2) + (cultureArticlesCount * 10) + totalRespectsOnArticles + totalCommentsOnArticles
 }
 
 export const getBadgeColor = (badgeLevel: BadgeLevel): string => {

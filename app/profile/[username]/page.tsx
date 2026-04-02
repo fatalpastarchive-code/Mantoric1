@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation"
+import { formatMetric } from "@/lib/utils"
 import Image from "next/image"
 import { auth, currentUser, clerkClient } from "@clerk/nextjs/server"
 import { users, follows, articles } from "@/lib/db/collections"
 import { Button } from "@/components/ui/button"
 import { FollowButton } from "@/components/profile/follow-button"
 import { EditProfileDialog } from "@/components/profile/edit-profile-dialog"
+import { ThemeSelector } from "@/components/theme/theme-selector"
 import { ProfileTabs } from "@/components/profile/profile-tabs"
 import { ThreeColumnLayout } from "@/components/layout/three-column-layout"
 import { LeftSidebar } from "@/components/sidebar/left-sidebar"
@@ -21,19 +23,35 @@ import {
   MapPin, 
   Link as LinkIcon,
   Sparkles,
+  Zap as SilenceIcon,
   Zap,
   Book,
   Film,
   Star,
-  Search
+  Search,
+  UserX,
+  Ban,
+  Gift,
+  Layout,
+  Brain as WisdomIcon,
+  Infinity as InfinityIcon
 } from "lucide-react"
-import { calculateReputation } from "@/lib/db/schema"
+import { calculateReputation, calculateAxiomsScore } from "@/lib/db/schema"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { CAESAR_CLERK_ID } from "@/lib/constants"
 import { resolveMantoricRole, type MantoricRole } from "@/lib/auth/roles"
 import { format } from "date-fns"
 import { getUserCulturalReviews } from "@/lib/actions/cultural-review-actions"
+import { getUserForumTopics } from "@/lib/actions/forum-actions"
+import { RankBadge } from "@/components/ui/rank-badge"
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
 
 function getRankColor(rank: string): string {
   const r = rank.toLowerCase()
@@ -143,6 +161,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   // Fetch cultural reviews from the proper collection
   const { reviews: culturalReviewsList = [] } = await getUserCulturalReviews(profileUser.clerkId || profileUser._id.toString())
   
+  // Fetch Forum Topics for the user
+  const forumRes = await getUserForumTopics(profileUser.clerkId || profileUser._id.toString())
+  const userForumTopics = forumRes.success ? forumRes.topics : []
+
+  // Calculate total likes received from articles
+  const totalLikes = userArticles.reduce((sum, a) => sum + (a.likesCount || 0), 0)
+  const totalCommentsOnArticles = userArticles.reduce((sum, a) => sum + (a.commentsCount || 0), 0)
+  const axiomsScore = calculateAxiomsScore(userArticles.length, totalLikes, totalCommentsOnArticles)
+
   const mediaItems = culturalReviewsList.map(review => ({
     id: review._id,
     type: review.type.toLowerCase() as "book" | "movie" | "series",
@@ -181,19 +208,23 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
              </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="pt-3 flex gap-2">
             {isOwnProfile ? (
               <div className="flex gap-2">
+                  <ThemeSelector 
+                    respectPoints={profileUser.respectPoints || 0}
+                    userRank={profileUser.rank as string || "Citizen"}
+                    isPremium={profileUser.isPremium || false}
+                    currentTheme={profileUser.activeTheme as string}
+                  />
                  <EditProfileDialog 
                     username={profileUser.username || null} 
                     bio={profileUser.bio || null} 
                     bannerUrl={profileUser.bannerUrl || null} 
                     avatar={(profileUser.avatar || profileUser.image) as string | null}
                     trigger={
-                      <Button variant="outline" className="rounded-full font-bold">
-                        <Settings className="mr-2 h-4 w-4" />
-                        Edit Profile
+                      <Button variant="outline" size="icon" className="rounded-full">
+                        <Settings className="h-4 w-4" />
                       </Button>
                     }
                  />
@@ -215,25 +246,61 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
         {/* Identity & Bio */}
         <div className="mt-4 space-y-1">
-           <div className="flex items-center gap-2">
-             <h1 className={`text-xl font-extrabold tracking-tight sm:text-2xl ${isProfileCaesar ? "caesar-name" : "text-foreground"}`}>
-               {profileUser.displayName || profileUser.name}
-             </h1>
-             {expertBadge && (
-               <Badge className={`h-5 px-2 text-[10px] font-bold border ${expertBadge.color}`}>
-                 <ShieldCheck className="h-3 w-3 mr-1" />
-                 {expertBadge.label}
-               </Badge>
-             )}
-           </div>
-           <div className="flex items-center gap-2">
-             <p className="text-zinc-500 text-sm font-medium">@{profileUser.username || "username"}</p>
-             <Badge className={`mantoric-role-badge h-5 px-2 text-[10px] ${getRankColor(role)}`}>
-               {getRoleIcon(role)}
-               {role}
-             </Badge>
-           </div>
+            <div className="flex items-center gap-2">
+              <h1 className={`text-xl font-extrabold tracking-tight sm:text-2xl ${isProfileCaesar ? "caesar-name" : "text-foreground"}`}>
+                {profileUser.displayName || profileUser.name}
+              </h1>
+              {profileUser.isPostBanned && (
+                <div className="flex items-center gap-1 text-red-500">
+                  <UserX className="h-5 w-5" />
+                  <Badge variant="destructive" className="h-5 px-2 text-[10px] font-black uppercase tracking-widest bg-red-500/10 text-red-500 border-red-500/20">
+                    Silenced
+                  </Badge>
+                </div>
+              )}
+              {expertBadge && (
+                <Badge className={`h-5 px-2 text-[10px] font-bold border ${expertBadge.color}`}>
+                  <ShieldCheck className="h-3 w-3 mr-1" />
+                  {expertBadge.label}
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="text-zinc-500 text-sm font-medium">@{profileUser.username || "username"}</p>
+              <RankBadge role={profileUser.role as any || "CITIZEN"} size="sm" showLabel />
+            </div>
         </div>
+
+        {/* Honor Row - Badges */}
+        {profileUser.badges && profileUser.badges.length > 0 && (
+          <div className="mt-4 flex items-center gap-2 overflow-x-auto no-scrollbar pb-2">
+            <TooltipProvider>
+              {profileUser.badges.map((badge: any) => {
+                const badgeConfig: any = {
+                  EARLY_SUPPORTER: { icon: Gift, label: "Early Supporter", color: "text-emerald-400 bg-emerald-500/10" },
+                  AXIOM_ARCHITECT: { icon: Layout, label: "Axiom Architect", color: "text-blue-400 bg-blue-500/10" },
+                  ARENA_VETERAN: { icon: Swords, label: "Arena Veteran", color: "text-red-400 bg-red-500/10" },
+                  PURVEYOR_OF_WISDOM: { icon: WisdomIcon, label: "Purveyor of Wisdom", color: "text-purple-400 bg-purple-500/10" },
+                  SILENCE_BREAKER: { icon: SilenceIcon, label: "Silence Breaker", color: "text-yellow-400 bg-yellow-500/10" },
+                }
+                const config = badgeConfig[badge] || badgeConfig.EARLY_SUPPORTER
+                const Icon = config.icon
+                return (
+                  <Tooltip key={badge}>
+                    <TooltipTrigger asChild>
+                      <div className={cn("flex-shrink-0 p-2 rounded-xl border border-white/5", config.color)}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-zinc-900 border-zinc-800 text-xs font-bold uppercase">
+                      {config.label}
+                    </TooltipContent>
+                  </Tooltip>
+                )
+              })}
+            </TooltipProvider>
+          </div>
+        )}
 
         {profileUser.bio && (
           <p className="mt-3 text-sm sm:text-[15px] leading-normal text-foreground/90 whitespace-pre-wrap">
@@ -245,10 +312,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
            <div className="p-3 rounded-2xl bg-secondary/20 border border-border/30 flex flex-col gap-1">
               <div className="flex items-center gap-1.5 text-muted-foreground">
-                 <Sparkles className="h-3.5 w-3.5 text-purple-500" />
+                 <ShieldCheck className="h-3.5 w-3.5 text-purple-500" />
                  <span className="text-[10px] font-bold uppercase tracking-wider">Respect</span>
               </div>
-              <span className="text-lg font-black text-foreground">{respectPoints.toLocaleString()}</span>
+              <span className="text-lg font-black text-foreground">{formatMetric(respectPoints)}</span>
            </div>
            <div className="p-3 rounded-2xl bg-secondary/20 border border-border/30 flex flex-col gap-1">
               <div className="flex items-center gap-1.5 text-muted-foreground">
@@ -258,11 +325,20 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
               <span className="text-lg font-black text-foreground">{(profileUser as any).streak || 0} Days</span>
            </div>
            <div className="p-3 rounded-2xl bg-secondary/20 border border-border/30 flex flex-col gap-1">
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                 <Crown className="h-3.5 w-3.5 text-emerald-500" />
-                 <span className="text-[10px] font-bold uppercase tracking-wider">Reputation</span>
-              </div>
-              <span className="text-lg font-black text-foreground">{reputation.toLocaleString()}</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1.5 text-muted-foreground cursor-help">
+                       <InfinityIcon className="h-3.5 w-3.5 text-emerald-500" />
+                       <span className="text-[10px] font-bold uppercase tracking-wider">Axioms</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-zinc-900 border-zinc-800 text-xs text-white max-w-[200px]">
+                    Axioms measure the weight of your shared wisdom and engagement in the Arena.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <span className="text-lg font-black text-foreground">{formatMetric(axiomsScore)}</span>
            </div>
            <div className="p-3 rounded-2xl bg-secondary/20 border border-border/30 flex flex-col gap-1">
               <div className="flex items-center gap-1.5 text-muted-foreground">
@@ -284,10 +360,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         {/* Followers / Following Stats */}
         <div className="mt-4 flex gap-5 text-sm">
            <div className="flex items-center gap-1">
-              <span className="font-bold text-foreground">{profileUser.followingCount || 0}</span> <span className="text-zinc-500 font-medium">Following</span>
+              <span className="font-bold text-foreground">{formatMetric(profileUser.followingCount || 0)}</span> <span className="text-zinc-500 font-medium">Following</span>
            </div>
            <div className="flex items-center gap-1">
-              <span className="font-bold text-foreground">{profileUser.followersCount || 0}</span> <span className="text-zinc-500 font-medium">Followers</span>
+              <span className="font-bold text-foreground">{formatMetric(profileUser.followersCount || 0)}</span> <span className="text-zinc-500 font-medium">Followers</span>
            </div>
         </div>
       </div>
@@ -298,7 +374,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         isOwnProfile={!!isOwnProfile}
         authorName={profileUser.displayName || profileUser.name || "Anonymous"}
         articles={feedArticles as any}
+        forumTopics={userForumTopics as any}
         initialMedia={mediaItems as any}
+        totalLikes={totalLikes}
       />
     </div>
   )

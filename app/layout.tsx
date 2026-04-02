@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/context/theme-context"
 import { cn } from "@/lib/utils"
 import { RespectNotification } from "@/components/notifications/respect-notification"
+import { PageTransition } from "@/components/providers/page-transition"
 import './globals.css'
 
 const inter = Inter({ 
@@ -59,9 +60,11 @@ export default function RootLayout({
       }}
     >
       <html lang="en" suppressHydrationWarning>
-        <body className={cn(inter.variable, "min-h-screen font-sans antialiased bg-black")}>
+        <body className={cn(inter.variable, "min-h-screen font-sans antialiased bg-background transition-colors duration-500 infinite-horizon")}>
           <ThemeProvider>
-            {children}
+            <PageTransition>
+              {children}
+            </PageTransition>
             <RespectNotification />
             <Toaster position="top-right" richColors />
           </ThemeProvider>

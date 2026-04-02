@@ -134,6 +134,8 @@ interface CreateTopicInput {
   title: string
   content: string
   category: string
+  tags?: string[]
+  imageUrl?: string
   type: ForumTopicType
   relatedArticleId?: string
   relatedCultureId?: string
@@ -149,9 +151,9 @@ export async function createForumTopic(input: CreateTopicInput) {
     const user = await usersCol.findOne({ clerkId: userId })
     if (!user) return { success: false, error: "User not found" }
 
-    // Caesar bypass - unlimited posts
-    const canCreateTopic = isCaesar || (user.respectPoints || 0) >= 3 || ['caesar', 'senator', 'gladiator', 'admin', 'moderator'].includes(user.role)
-    if (!canCreateTopic) return { success: false, error: "Requires 3 Respect Points or elevated status to start discussions" }
+    const role = user.role as any
+    const canCreateTopic = isCaesar || ["CAESAR", "SENATOR", "LEGATE", "GLADIATOR", "CITIZEN"].includes(role)
+    if (!canCreateTopic) return { success: false, error: "Only citizens and above can start discussions." }
 
     const topicsCol = await forumTopics()
     const newTopic = {
@@ -160,6 +162,8 @@ export async function createForumTopic(input: CreateTopicInput) {
       authorId: userId,
       authorName: user.displayName || user.username || "Anonymous",
       category: input.category,
+      tags: input.tags || [],
+      imageUrl: input.imageUrl || "",
       type: input.type,
       relatedArticleId: input.relatedArticleId,
       relatedCultureId: input.relatedCultureId,
@@ -356,5 +360,26 @@ export async function getUserRespectStatus() {
   } catch (error) {
     console.error("[getUserRespectStatus] Error:", error)
     return { success: false, error: "Failed to fetch respect status" }
+  }
+}
+
+export async function getUserForumTopics(userId: string): Promise<{ success: boolean; topics?: any[]; error?: string }> {
+  try {
+    const col = await forumTopics()
+    const rawTopics = await col.find({ authorId: userId })
+      .sort({ createdAt: -1 })
+      .toArray()
+
+    const topics = rawTopics.map((topic: any) => ({
+      ...topic,
+      _id: topic._id?.toString() || topic._id,
+      createdAt: topic.createdAt instanceof Date ? topic.createdAt.toISOString() : topic.createdAt,
+      updatedAt: topic.updatedAt instanceof Date ? topic.updatedAt.toISOString() : topic.updatedAt,
+    }))
+
+    return { success: true, topics }
+  } catch (error) {
+    console.error("[getUserForumTopics] Error:", error)
+    return { success: false, error: "Failed to fetch user discussions" }
   }
 }

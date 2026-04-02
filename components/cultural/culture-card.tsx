@@ -257,9 +257,8 @@ export function CultureCard({
 
           {/* Quote */}
           {review.quote && (
-            <div className="relative pl-3 border-l-2 border-purple-500/40">
-              <Quote className="absolute -left-1.5 -top-0.5 h-3 w-3 text-purple-500/40" />
-              <p className="text-sm italic text-zinc-400 leading-relaxed">
+            <div className="relative pl-4 border-l border-purple-500/50 py-1">
+              <p className="text-sm italic text-zinc-300 leading-relaxed tracking-wide" style={{ fontFamily: 'var(--font-cormorant), serif' }}>
                 &ldquo;{review.quote}&rdquo;
               </p>
             </div>

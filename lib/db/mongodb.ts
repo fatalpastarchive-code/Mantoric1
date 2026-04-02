@@ -35,12 +35,6 @@ function normalizeMongoUri(uri: string): string {
     url += `${separator}retryWrites=true&w=majority`
   }
 
-  // If directConnection=true is present, flip it to false so the driver
-  // can discover the replica set and talk to the current primary.
-  if (url.includes("directConnection=true")) {
-    url = url.replace("directConnection=true", "directConnection=false")
-  }
-
   return url
 }
 

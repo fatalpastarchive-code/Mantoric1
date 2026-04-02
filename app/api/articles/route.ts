@@ -23,8 +23,9 @@ export async function POST(req: NextRequest) {
 
     const role = await resolveMantoricRole(user as any)
 
-    if (role !== "Caesar" && role !== "Senator" && role !== "Praetor") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
+    // ONLY users with 'LEGATE', 'SENATOR', or 'CAESAR' rank can publish culture articles
+    if (role !== "CAESAR" && role !== "SENATOR" && role !== "LEGATE") {
+      return NextResponse.json({ error: "Unauthorized. Required rank: Legate or above." }, { status: 403 })
     }
 
     const body = await req.json().catch(() => null)

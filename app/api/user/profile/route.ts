@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { users } from "@/lib/db/collections"
+import { users, forumTopics, articles } from "@/lib/db/collections"
+import { calculateAxiomsScore } from "@/lib/db/schema"
 
 // GET - Get user profile by username
 export async function GET(req: NextRequest) {
@@ -18,6 +19,30 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
+    const articlesCol = await articles()
+    const forumCol = await forumTopics()
+    
+    const userIdStr = user.clerkId || String(user._id)
+
+    // Elite Culture Articles (from articles collection)
+    const userArticles = await articlesCol.find({ authorId: userIdStr }).toArray()
+    const cultureArticlesCount = userArticles.length
+    
+    // Forum Topics (from forumTopics collection)
+    const userForumCount = await forumCol.countDocuments({ authorId: userIdStr })
+    
+    // Engagement stats
+    const totalLikesOnArticles = userArticles.reduce((sum, a) => sum + (a.likesCount || 0), 0)
+    const totalCommentsOnArticles = userArticles.reduce((sum, a) => sum + (a.commentsCount || 0), 0)
+    
+    // Use the schema utility
+    const axiomsScore = calculateAxiomsScore(
+      userForumCount,
+      cultureArticlesCount,
+      totalLikesOnArticles,
+      totalCommentsOnArticles
+    )
+
     return NextResponse.json({
       user: {
         id: user.clerkId || String(user._id),
@@ -28,9 +53,10 @@ export async function GET(req: NextRequest) {
         avatar: user.avatar || user.image,
         bannerUrl: user.bannerUrl || "",
         rank: user.rank || "Newbie",
-        reputation: user.respectPoints || 0,
+        axiomsCount: axiomsScore,
         respectPoints: user.respectPoints || 0,
         badgeLevel: user.badgeLevel || "Newbie",
+        badges: user.badges || [],
         streak: user.streak || 0,
         followersCount: user.followersCount || 0,
         followingCount: user.followingCount || 0,

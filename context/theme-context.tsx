@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { useUser } from "@clerk/nextjs"
 
-type Theme = "dark-purple" | "classic-black" | "emerald-stoic" | "royal-gold"
+type Theme = "dark-purple" | "classic-black" | "emerald-stoic" | "royal-gold" | "imperial-white" | "stellar-abyss"
 
 interface ThemeContextType {
   theme: Theme
@@ -16,7 +16,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const { user, isSignedIn } = useUser()
   const [theme, setThemeState] = useState<Theme>("dark-purple")
-  const [unlockedThemes, setUnlockedThemes] = useState<string[]>(["dark-purple", "classic-black"])
+  const [unlockedThemes, setUnlockedThemes] = useState<string[]>(["dark-purple", "classic-black", "imperial-white"])
 
   useEffect(() => {
     if (isSignedIn && user?.username) {

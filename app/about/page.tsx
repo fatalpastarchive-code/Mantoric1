@@ -31,46 +31,62 @@ export default function AboutPage() {
 
           {/* Content Sections */}
           <div className="space-y-16">
-            {/* The Origin */}
+            {/* The Purpose */}
             <section>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center">
                   <Sparkles className="h-5 w-5 text-purple-400" />
                 </div>
-                <h2 className="text-2xl font-bold text-white">The Origin</h2>
+                <h2 className="text-2xl font-bold text-white">The Purpose</h2>
               </div>
               <div className="space-y-4 text-zinc-400 leading-relaxed pl-14">
                 <p>
-                  Mantoric was born from a singular frustration: the modern digital landscape had become 
+                  <strong className="text-white">Archiving elite knowledge away from digital noise.</strong> The modern digital landscape has become 
                   a cacophony of noise. In an era where every voice demands attention, genuine knowledge 
                   — the kind that transforms lives — was drowning beneath an endless tide of mediocrity.
                 </p>
                 <p>
-                  We founded Mantoric to build something different: a <strong className="text-white">premium, noise-free knowledge institute</strong>. 
+                  We founded Mantoric to build something different: a premium, noise-free knowledge institute. 
                   A place where the signal-to-noise ratio favors depth over breadth, where authors are 
                   rewarded for quality rather than clickbait, and where readers come seeking transformation, 
                   not just entertainment.
                 </p>
+              </div>
+            </section>
+
+            {/* The Hierarchy */}
+            <section>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center">
+                  <Crown className="h-5 w-5 text-amber-400" />
+                </div>
+                <h2 className="text-2xl font-bold text-white">The Hierarchy</h2>
+              </div>
+              <div className="space-y-4 text-zinc-400 leading-relaxed pl-14">
                 <p>
-                  Our name derives from the ancient concept of a &ldquo;mantle&rdquo; — a symbol of authority 
-                  and responsibility. To write on Mantoric is to don the mantle of a knowledge guardian, 
-                  entrusted with the solemn duty of enriching human understanding.
+                  <strong className="text-white">Earning authority through verified respect and interactive axioms.</strong> On Mantoric, prestige cannot be 
+                  bought or artificially inflated. It is earned exclusively through the contribution of 
+                  elite knowledge and the respect it commands among peers.
+                </p>
+                <p>
+                  Our system discards traditional &ldquo;likes&rdquo; and engagement farming. 
+                  Instead, we utilize <strong className="text-white">Axioms</strong> to measure the weight and interactive resonance of an author&apos;s wisdom, and a strict <strong className="text-white">Respect System</strong> that ensures only the most profound insights rise to the top of our global archive.
                 </p>
               </div>
             </section>
 
-            {/* The Blueprint */}
+            {/* The Trajectory */}
             <section>
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center">
                   <Target className="h-5 w-5 text-emerald-400" />
                 </div>
-                <h2 className="text-2xl font-bold text-white">The Blueprint</h2>
+                <h2 className="text-2xl font-bold text-white">The Trajectory</h2>
               </div>
               <div className="space-y-4 text-zinc-400 leading-relaxed pl-14">
                 <p>
-                  We are executing a <strong className="text-white">14-month trajectory</strong> toward global scaling. 
-                  Our roadmap is ambitious but deliberate:
+                  <strong className="text-white">Our 14-month path toward a global physical and digital network.</strong> We are executing a 
+                  deliberate trajectory to scale our sanctuary worldwide:
                 </p>
                 <div className="grid gap-4 mt-6">
                   <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800/50">
@@ -85,55 +101,16 @@ export default function AboutPage() {
                       <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">Phase 2</span>
                       <span className="text-xs text-zinc-600">Months 4-8</span>
                     </div>
-                    <p className="text-sm text-zinc-300">Expansion — Cultural archive, forum launch, and community growth</p>
+                    <p className="text-sm text-zinc-300">Expansion — Cultural archive, interactive axioms, and community growth</p>
                   </div>
                   <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800/50">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">Phase 3</span>
                       <span className="text-xs text-zinc-600">Months 9-14</span>
                     </div>
-                    <p className="text-sm text-zinc-300">Global Scale — Ambassador network, mobile applications, reaching millions</p>
+                    <p className="text-sm text-zinc-300">Global Scale — Physical chapters, mobile applications, reaching millions</p>
                   </div>
                 </div>
-              </div>
-            </section>
-
-            {/* Ambassador System */}
-            <section>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center">
-                  <Globe className="h-5 w-5 text-amber-400" />
-                </div>
-                <h2 className="text-2xl font-bold text-white">Ambassador System</h2>
-              </div>
-              <div className="space-y-4 text-zinc-400 leading-relaxed pl-14">
-                <p>
-                  We believe the best ideas spread through trusted voices. Our Ambassador System 
-                  partners with English-speaking content creators globally — from emerging voices 
-                  with <strong className="text-white">100 to 10,000 followers</strong> — to spread Mantoric&apos;s mission.
-                </p>
-                <p>
-                  Ambassadors are more than promoters; they are curators of wisdom, entrusted to 
-                  identify and elevate voices that deserve amplification. In exchange, they receive:
-                </p>
-                <ul className="space-y-2 mt-4 text-zinc-300">
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-400 mt-1">•</span>
-                    <span>Founder-tier badge and lifetime premium access</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-400 mt-1">•</span>
-                    <span>Revenue share from referred premium subscriptions</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-400 mt-1">•</span>
-                    <span>Direct access to the Mantoric founding team</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-400 mt-1">•</span>
-                    <span>Early access to new features and exclusive content</span>
-                  </li>
-                </ul>
               </div>
             </section>
 

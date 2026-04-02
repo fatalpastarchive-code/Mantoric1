@@ -1,9 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useUser, SignInButton } from "@clerk/nextjs"
-import { PenLine, Heart, Sparkles, Dumbbell, Wallet, Brain, Cpu, Coffee, Gift, Lock, VenetianMask } from "lucide-react"
+import { 
+  PenLine, Heart, Sparkles, Dumbbell, Wallet, 
+  Brain, Cpu, Coffee, Gift, Lock, VenetianMask, ShieldAlert 
+} from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -14,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { CATEGORIES, CAESAR_CLERK_ID } from "@/lib/constants"
+import { getBrotherhoodStatus } from "@/lib/actions/support-intent-actions"
 
 const categoryIcons: Record<string, React.ElementType> = {
   "self-improvement": Sparkles,
@@ -32,6 +36,15 @@ export function ArticleComposer() {
   const [title, setTitle] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [showDonationDialog, setShowDonationDialog] = useState(false)
+  const [isBanned, setIsBanned] = useState(false)
+
+  useEffect(() => {
+    async function checkBan() {
+      const { isPostBanned } = await getBrotherhoodStatus()
+      setIsBanned(isPostBanned)
+    }
+    if (isSignedIn) checkBan()
+  }, [isSignedIn])
 
   const showCategories = title.length > 0
 
@@ -96,13 +109,20 @@ export function ArticleComposer() {
             placeholder="Share your knowledge..."
             className="flex-1 bg-transparent text-lg font-light text-foreground placeholder:text-zinc-600 focus:outline-none"
           />
-          <Button
-            type="submit"
-            disabled={!title.trim() || !selectedCategory}
-            className="rounded-2xl bg-white px-6 py-2.5 text-sm font-semibold text-black transition-all hover:bg-zinc-200 disabled:opacity-30 border-none"
-          >
-            Create
-          </Button>
+          {isBanned ? (
+            <div className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest">
+              <ShieldAlert className="h-4 w-4" />
+              Silenced
+            </div>
+          ) : (
+            <Button
+              type="submit"
+              disabled={!title.trim() || !selectedCategory}
+              className="rounded-2xl bg-white px-6 py-2.5 text-sm font-semibold text-black transition-all hover:bg-zinc-200 disabled:opacity-30 border-none"
+            >
+              Create
+            </Button>
+          )}
         </form>
 
         {/* Category Selector with Animation */}

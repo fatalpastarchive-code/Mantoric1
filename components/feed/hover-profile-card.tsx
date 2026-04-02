@@ -3,27 +3,10 @@
 import * as React from "react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-import { Crown, Gem, Shield, Sprout, Sparkles, User as UserIcon, Users, UserPlus } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Crown, Gem, Shield, Sprout, Sparkles, User as UserIcon, Users, UserPlus, ShieldCheck, Infinity as InfinityIcon } from "lucide-react"
+import { cn, formatMetric } from "@/lib/utils"
 import { useUser } from "@clerk/nextjs"
-
-const getRankIcon = (rank: string) => {
-  const r = rank?.toLowerCase() || ""
-  if (r === "founder") return <Crown className="h-3 w-3 mr-1 fill-[#D4AF37]" style={{ filter: "drop-shadow(0 0 5px rgba(212,175,55,0.5))" }} />
-  if (r === "diamond") return <Gem className="h-3 w-3 mr-1 fill-[#E5E4E2]" />
-  if (r === "silver") return <Shield className="h-3 w-3 mr-1 fill-[#C0C0C0]" />
-  if (r === "newbie") return <Sprout className="h-3 w-3 mr-1 fill-[#4ADE80]" />
-  return null
-}
-
-const getRankBadgeStyles = (rank: string) => {
-  const r = rank?.toLowerCase() || ""
-  if (r === "founder") return "text-[#D4AF37] font-bold gold-glow"
-  if (r === "diamond") return "text-[#E5E4E2] font-bold"
-  if (r === "silver") return "text-[#C0C0C0] font-bold"
-  if (r === "newbie") return "text-[#4ADE80] font-bold"
-  return "text-muted-foreground"
-}
+import { RankBadge } from "@/components/ui/rank-badge"
 
 const getRespectColor = (points: number) => {
   if (points >= 1000) return "text-purple-400"
@@ -34,6 +17,7 @@ const getRespectColor = (points: number) => {
 interface HoverProfileCardProps {
   author: {
     id: string
+    clerkId?: string
     name: string
     username: string
     avatar: string | null
@@ -43,6 +27,8 @@ interface HoverProfileCardProps {
     bio?: string
     isVerifiedExpert?: boolean
     expertField?: string
+    axiomsCount?: number
+    badges?: string[]
   }
   children: React.ReactNode
 }
@@ -56,6 +42,8 @@ type LiveProfile = {
   badgeLevel: string
   mongoId?: string
   clerkId?: string
+  axiomsCount: number
+  badges: string[]
 }
 
 export function HoverProfileCard({ author, children }: HoverProfileCardProps) {
@@ -120,6 +108,8 @@ export function HoverProfileCard({ author, children }: HoverProfileCardProps) {
             badgeLevel: data.user.badgeLevel || "Newbie",
             mongoId: data.user.mongoId || "",
             clerkId: data.user.clerkId || "",
+            axiomsCount: data.user.axiomsCount || 0,
+            badges: data.user.badges || [],
           })
         }
       } catch {
@@ -199,14 +189,21 @@ export function HoverProfileCard({ author, children }: HoverProfileCardProps) {
                     {author.name}
                   </Link>
                   <div className="flex items-center">
-                    {getRankIcon(live?.rank || author.rank)}
-                    <span className={cn("text-[10px] uppercase tracking-widest", getRankBadgeStyles(live?.rank || author.rank))}>
-                      {live?.rank || author.rank}
-                    </span>
+                    <RankBadge role={(((live?.rank || author.rank) as string) || "CITIZEN").toUpperCase() as any} size="sm" showLabel />
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground">@{author.username}</p>
               </div>
+
+              {(live?.badges || author.badges || []).length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1">
+                  {(live?.badges || author.badges || []).map(b => (
+                    <span key={b} className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest bg-violet-500/10 text-violet-400 border border-violet-500/20">
+                      {b.replace(/_/g, ' ')}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               {author.bio && (
                 <p className="mt-3 text-sm text-foreground/85 line-clamp-2 leading-normal font-light italic">
@@ -214,20 +211,25 @@ export function HoverProfileCard({ author, children }: HoverProfileCardProps) {
                 </p>
               )}
 
-              <div className="mt-6 flex items-center justify-between text-[10px] text-muted-foreground uppercase tracking-widest">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold">
-                  <Sparkles className="h-3.5 w-3.5 text-purple-400 fill-purple-400/20" />
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-y-2 text-[10px] text-muted-foreground uppercase tracking-widest">
+                <div className="flex items-center gap-1.5 text-[11px] font-bold" title="Respect points received from peers">
+                  <ShieldCheck className="h-3.5 w-3.5 text-purple-400" />
                   <span className={cn("text-sm", getRespectColor(live?.respectPoints ?? author.respectPoints ?? 0))}>
-                    {(live?.respectPoints ?? author.respectPoints ?? 0).toLocaleString()}
+                    {formatMetric(live?.respectPoints ?? author.respectPoints ?? 0)}
                   </span>
-                  <span className="opacity-60">Respect</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[11px] font-bold" title="Axioms measure the weight of your shared wisdom and engagement in the Arena.">
+                  <InfinityIcon className="h-3.5 w-3.5 text-emerald-400" />
+                  <span className="text-sm text-white">
+                    {formatMetric(live?.axiomsCount ?? author.axiomsCount ?? 0)}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-black text-white text-xs">{(live?.followingCount ?? 0).toLocaleString()}</span>
+                  <span className="font-black text-white text-xs">{formatMetric(live?.followingCount ?? 0)}</span>
                   <span>Following</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-black text-white text-xs">{(live?.followersCount ?? 0).toLocaleString()}</span>
+                  <span className="font-black text-white text-xs">{formatMetric(live?.followersCount ?? 0)}</span>
                   <span>Followers</span>
                 </div>
               </div>

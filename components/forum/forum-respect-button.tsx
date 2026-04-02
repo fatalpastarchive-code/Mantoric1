@@ -25,7 +25,7 @@ export function ForumRespectButton({ authorId, initialRespects = 0 }: ForumRespe
       if (res.success) {
         setRespects(prev => prev + 1)
         setHasRespected(true)
-        toast.success("Respect given")
+        toast.success("Your Axioms are expanding. Respect earned.")
       } else {
         toast.error(res.error || "Failed to give respect")
       }

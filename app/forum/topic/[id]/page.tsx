@@ -11,6 +11,7 @@ import ReactMarkdown from "react-markdown"
 import { formatDistanceToNow } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { ForumRespectButton } from "@/components/forum/forum-respect-button"
+import { ForumCommentForm } from "@/components/forum/forum-comment-form"
 
 interface TopicPageProps {
   params: Promise<{ id: string }>
@@ -81,9 +82,26 @@ export default async function ForumTopicPage({ params }: TopicPageProps) {
             {topic.title}
           </h1>
 
+          {topic.imageUrl && (
+            <div className="mb-6 rounded-2xl overflow-hidden border border-zinc-900 max-h-96">
+              <img src={topic.imageUrl} alt={topic.title} className="w-full h-full object-cover" />
+            </div>
+          )}
+
           <div className="prose prose-invert prose-purple max-w-none mb-8">
             <ReactMarkdown>{topic.content}</ReactMarkdown>
           </div>
+
+          {/* Tags */}
+          {topic.tags && topic.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-8">
+              {topic.tags.map((tag: string) => (
+                <span key={tag} className="px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[10px] uppercase tracking-widest font-bold text-zinc-500 hover:text-purple-400 transition-colors">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Interlinking Source Link if exists */}
           {(topic.relatedArticleId || topic.relatedCultureId) && (
@@ -136,15 +154,42 @@ export default async function ForumTopicPage({ params }: TopicPageProps) {
         </div>
       </div>
 
-      {/* Replies Section - Placeholder for now */}
+      {/* Replies Section */}
       <div className="space-y-6">
-        <h3 className="text-lg font-black uppercase tracking-widest text-white px-2">Replies</h3>
-        <div className="bg-zinc-950/30 border border-zinc-900/50 rounded-3xl p-8 text-center">
-          <MessageSquare className="h-12 w-12 text-zinc-800 mx-auto mb-4" />
-          <p className="text-zinc-500 font-medium">Be the first to share your perspective.</p>
-          <Button className="mt-6 rounded-full bg-purple-600 px-8 font-bold text-white hover:bg-purple-500">
-            Post a Reply
-          </Button>
+        <h3 className="text-lg font-black uppercase tracking-widest text-white px-2">Replies ({comments.length})</h3>
+        
+        {/* Comment Form */}
+        {userId && <ForumCommentForm topicId={id} />}
+
+        {/* Comments List */}
+        <div className="space-y-4">
+          {comments.map((comment: any) => (
+            <div key={comment._id} className="bg-zinc-950/30 border border-zinc-900/50 rounded-3xl p-6 hover:bg-zinc-900/40 transition-all">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-8 w-8 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden">
+                  <div className="h-full w-full flex items-center justify-center text-xs font-bold text-zinc-600 uppercase">
+                    {comment.authorName?.charAt(0)}
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold text-white">{comment.authorName}</span>
+                  <span className="text-[10px] text-zinc-600">
+                    {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                  </span>
+                </div>
+              </div>
+              <p className="text-sm text-zinc-300 leading-relaxed pl-1">
+                {comment.content}
+              </p>
+            </div>
+          ))}
+
+          {comments.length === 0 && (
+            <div className="bg-zinc-950/30 border border-zinc-900/50 rounded-3xl p-12 text-center">
+              <MessageSquare className="h-12 w-12 text-zinc-800 mx-auto mb-4" />
+              <p className="text-zinc-500 font-medium">Be the first to share your perspective in this archive entry.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -15,22 +15,28 @@ import { toast } from "sonner"
 import { formatDistanceToNow } from "date-fns"
 import { HoverProfileCard } from "@/components/feed/hover-profile-card"
 import { getRankIcon, getRankBadgeStyles } from "@/components/ui/authority-badge"
+import { RankBadge } from "@/components/ui/rank-badge"
+import type { UserRole } from "@/lib/db/schema"
 import { 
   createForumTopic, 
   adminDeleteForumTopic, 
   getForumTopics,
   getUserRespectStatus 
 } from "@/lib/actions/forum-actions"
+import { ForumRespectButton } from "./forum-respect-button"
 import { CAESAR_CLERK_ID } from "@/lib/constants"
 import type { ForumTopic, ForumTopicType } from "@/lib/db/schema"
 
 interface ForumTopicItem extends ForumTopic {
   author?: {
-    id: string
     name: string
     avatar?: string | null
-    rank: string
+    rank: UserRole | string
     respectPoints?: number
+    clerkId?: string
+    username?: string
+    xp?: number
+    bio?: string
   }
 }
 
@@ -132,7 +138,7 @@ export function ForumFeed({ initialTopics }: ForumFeedProps) {
         {topics.map((topic) => (
           <div 
             key={topic._id}
-            className="group relative bg-zinc-950/30 border border-zinc-900/50 rounded-2xl p-5 hover:bg-zinc-900/40 hover:border-zinc-800 transition-all duration-300"
+            className="group relative bg-black border border-zinc-900/50 rounded-2xl p-5 hover:bg-zinc-950 transition-all duration-300"
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0 space-y-3">
@@ -150,26 +156,24 @@ export function ForumFeed({ initialTopics }: ForumFeedProps) {
                       bio: topic.author.bio
                     }}>
                       <div className="flex items-center gap-3 cursor-pointer">
-                        <div className="h-8 w-8 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden flex-shrink-0">
+                        <div className="relative h-8 w-8 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden flex-shrink-0">
                           {topic.author.avatar ? (
                             <img src={topic.author.avatar} alt={topic.author.name} className="h-full w-full object-cover" />
                           ) : (
-                            <div className="h-full w-full flex items-center justify-center text-xs font-bold text-zinc-600 uppercase">
+                            <div className="h-full w-full flex items-center justify-center text-[10px] font-bold text-zinc-600 uppercase">
                               {topic.author.name.charAt(0)}
                             </div>
                           )}
+                          <div className="absolute -bottom-1 -right-1 z-10">
+                            <RankBadge role={topic.author.rank as any || "CITIZEN"} size="sm" />
+                          </div>
                         </div>
                         <div className="flex flex-col">
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-bold text-white hover:text-purple-400 transition-colors">
                               {topic.author.name}
                             </span>
-                            {topic.author.rank && (
-                              <span className={cn("text-[9px] uppercase tracking-widest font-medium", getRankBadgeStyles(topic.author.rank))}>
-                                {getRankIcon(topic.author.rank)}
-                                {topic.author.rank}
-                              </span>
-                            )}
+                            <RankBadge role={topic.author.rank as any || "CITIZEN"} size="sm" showLabel />
                           </div>
                           <span className="text-[10px] text-zinc-600">
                             @{topic.author.username || 'user'} · {formatDistanceToNow(new Date(topic.createdAt), { addSuffix: true })}
@@ -200,20 +204,44 @@ export function ForumFeed({ initialTopics }: ForumFeedProps) {
                   <h3 className="text-lg font-bold text-zinc-100 group-hover/title:text-purple-400 transition-colors leading-tight mb-1">
                     {topic.title}
                   </h3>
-                  <p className="text-sm text-zinc-500 line-clamp-2 leading-relaxed">
+                  
+                  {topic.imageUrl && (
+                    <div className="my-3 rounded-xl overflow-hidden border border-zinc-900 h-48 sm:h-64">
+                      <img src={topic.imageUrl} alt="" className="w-full h-full object-cover group-hover/title:scale-105 transition-transform duration-500" />
+                    </div>
+                  )}
+
+                  <p className="text-sm text-zinc-500 line-clamp-2 leading-relaxed mb-3">
                     {topic.content}
                   </p>
+
+                  {topic.tags && topic.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {topic.tags.map(tag => (
+                        <span key={tag} className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 hover:text-purple-400 transition-colors">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </Link>
 
-                <div className="flex items-center gap-4 pt-1">
-                  <div className="flex items-center gap-1.5 text-zinc-600">
+                <div className="flex items-center gap-6 pt-3 border-t border-zinc-900/50 mt-4">
+                  <ForumRespectButton 
+                    authorId={topic.authorId} 
+                    initialRespects={topic.likesCount || 0} 
+                  />
+                  
+                  <Link href={`/forum/topic/${topic._id}`} className="flex items-center gap-1.5 text-zinc-500 hover:text-white transition-colors">
                     <MessageSquare className="h-4 w-4" />
-                    <span className="text-xs font-medium">{topic.repliesCount || 0}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-zinc-600">
+                    <span className="text-sm font-bold">{topic.repliesCount || 0} Replies</span>
+                  </Link>
+                  
+                  <div className="flex items-center gap-1.5 text-zinc-600 ml-auto">
                     <Eye className="h-4 w-4" />
-                    <span className="text-xs font-medium">{topic.views || 0}</span>
+                    <span className="text-xs font-medium">{topic.views || 0} views</span>
                   </div>
+                  
                   <div className="px-2 py-0.5 rounded-full bg-zinc-900/50 border border-zinc-800 text-[10px] uppercase tracking-wider text-zinc-500 font-bold">
                     {topic.category}
                   </div>

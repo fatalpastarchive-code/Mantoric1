@@ -14,7 +14,9 @@ import { formatDistanceToNow } from "date-fns"
 import { motion } from "framer-motion"
 import { toast } from "sonner"
 import { HoverProfileCard } from "@/components/feed/hover-profile-card"
-import { AuthorityBadge, getRankIcon, getRankBadgeStyles } from "@/components/ui/authority-badge"
+import { AuthorityBadge } from "@/components/ui/authority-badge"
+import { RankBadge } from "@/components/ui/rank-badge"
+import type { UserRole } from "@/lib/db/schema"
 
 export interface ArticleCardProps {
   id: string
@@ -28,7 +30,7 @@ export interface ArticleCardProps {
     username?: string
     name: string
     avatar?: string | null
-    rank: string
+    rank: UserRole | string
     xp: number
     respectPoints?: number
     isPremium?: boolean
@@ -173,7 +175,7 @@ export function ArticleCard({
       onKeyDown={handleCardKeyDown}
       className="block cursor-pointer hover:bg-white/5 transition-all duration-300 rounded-3xl"
     >
-      <div className="flex flex-col gap-3 p-6">
+      <div className="flex flex-col gap-5 p-8 md:p-10">
         {/* Author Header */}
         <div className="flex items-center justify-between">
           <HoverProfileCard author={{
@@ -203,6 +205,12 @@ export function ArticleCard({
                     {author.name.charAt(0).toUpperCase()}
                   </div>
                 )}
+                <div className={cn(
+                  "absolute -bottom-1 -right-1 z-10",
+                  (author.rank === "CAESAR" || author.rank === "SENATOR" || author.rank === "LEGATE") && "shadow-[0_0_15px_rgba(168,85,247,0.4)] rounded-full animate-pulse"
+                )}>
+                  <RankBadge role={author.rank as any || "CITIZEN"} size="sm" />
+                </div>
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5">
@@ -211,17 +219,9 @@ export function ArticleCard({
                   >
                     {author.name}
                   </span>
-                  <div className="flex items-center">
-                    {getRankIcon(author.rank)}
-                    <span className={cn("text-[9px] uppercase tracking-widest", getRankBadgeStyles(author.rank))}>
-                      {author.rank}
-                    </span>
-                  </div>
                   {author.isVerifiedExpert && (
-                    <div className="text-primary">
-                      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current">
-                        <path d="M22.5 12.5c0-1.58-.88-2.95-2.18-3.66.15-.44.23-.91.23-1.4 0-2.25-1.83-4.07-4.07-4.07-.49 0-.96.08-1.41.23-.71-1.3-2.08-2.18-3.66-2.18s-2.95.88-3.66 2.18c-.44-.15-.91-.23-1.4-.23-2.25 0-4.07 1.83-4.07 4.07 0 .49.08.96.23 1.41-1.3.71-2.18 2.08-2.18 3.66s.88 2.95 2.18 3.66c-.15.44-.23.91-.23 1.4 0 2.25 1.83 4.07 4.07 4.07.49 0 .96-.08 1.41-.23.71 1.3 2.08 2.18 3.66 2.18s2.95-.88 3.66-2.18c.44.15.91.23 1.4.23 2.25 0 4.07-1.83 4.07-4.07 0-.49-.08-.96-.23-1.41 1.3-.71 2.18-2.08 2.18-3.66zM10 17l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                      </svg>
+                    <div className="text-blue-400">
+                      <ShieldCheck className="h-3.5 w-3.5 fill-current" />
                     </div>
                   )}
                 </div>
@@ -233,11 +233,11 @@ export function ArticleCard({
         </div>
 
         {/* Content Section */}
-        <div className="flex flex-col gap-1.5">
-          <h3 className="text-[19px] font-semibold leading-tight text-foreground tracking-tight">
+        <div className="flex flex-col gap-3">
+          <h3 className="text-2xl md:text-3xl font-bold leading-tight text-foreground tracking-tight serif-font">
             {title}
           </h3>
-          <p className="text-[15px] leading-normal text-muted-foreground/90 line-clamp-2 font-light">
+          <p className="text-[17px] md:text-lg leading-relaxed text-muted-foreground/90 line-clamp-3 font-light tracking-wide italic-excerpt">
             {excerpt}
           </p>
         </div>

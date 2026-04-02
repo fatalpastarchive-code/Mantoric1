@@ -10,8 +10,11 @@ import { BookOpen, Film, Search, Star, Loader2, X, Image as ImageIcon } from "lu
 import { cn } from "@/lib/utils"
 import { searchCulturalContent, type UnifiedCulturalResult } from "@/lib/actions/cultural-actions"
 import { createCulturalReview } from "@/lib/actions/cultural-review-actions"
+import { getBrotherhoodStatus } from "@/lib/actions/support-intent-actions"
 import { toast } from "sonner"
 import type { CulturalType } from "@/lib/db/schema"
+import { ShieldAlert } from "lucide-react"
+import { useEffect } from "react"
 
 interface CulturalArchiveModalProps {
   open: boolean
@@ -31,6 +34,15 @@ export function CulturalArchiveModal({ open, onOpenChange, onSuccess }: Cultural
   const [review, setReview] = useState("")
   const [rating, setRating] = useState(5)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isBanned, setIsBanned] = useState(false)
+
+  useEffect(() => {
+    async function checkBan() {
+      const { isPostBanned } = await getBrotherhoodStatus()
+      setIsBanned(isPostBanned)
+    }
+    if (open) checkBan()
+  }, [open])
 
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim()) return
@@ -316,17 +328,24 @@ export function CulturalArchiveModal({ open, onOpenChange, onSuccess }: Cultural
               Cancel
             </Button>
             {selectedItem && (
-              <Button
-                onClick={handleSubmit}
-                disabled={isSubmitting || !review.trim()}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-6"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Archive Entry"
-                )}
-              </Button>
+              isBanned ? (
+                <div className="flex items-center gap-2 px-6 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest">
+                  <ShieldAlert className="h-4 w-4" />
+                  Your voice has been silenced by the Senate.
+                </div>
+              ) : (
+                <Button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || !review.trim()}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-6"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Archive Entry"
+                  )}
+                </Button>
+              )
             )}
           </div>
         </div>
