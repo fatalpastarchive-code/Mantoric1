@@ -31,12 +31,8 @@ export const metadata: Metadata = {
   description: 'Mantoric - a minimalist knowledge portal and forum',
   generator: 'v0.app',
   icons: {
-    icon: [
-      {
-        url: '/M.jpg',
-        type: 'image/jpeg',
-      },
-    ],
+    icon: '/M.jpg',
+    shortcut: '/M.jpg',
     apple: '/M.jpg',
   },
 }
