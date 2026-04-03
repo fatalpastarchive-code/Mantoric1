@@ -267,6 +267,8 @@
   }
 }
 
+/* Custom utility classes */
+@layer utilities {
   .serif-font {
     font-family: var(--font-serif);
   }
@@ -274,10 +276,6 @@
     font-style: italic;
     letter-spacing: 0.01em;
   }
-}
-
-/* Custom utility classes */
-@layer utilities {
   .gold-glow {
     text-shadow: 0 0 10px rgba(212, 175, 55, 0.5), 0 0 20px rgba(212, 175, 55, 0.2);
   }

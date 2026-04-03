@@ -105,7 +105,7 @@ export function PrestigeBox({ badgeLevel: initialBadgeLevel, respectPoints: init
       className={cn(
         "relative overflow-hidden group/prestige",
         isFloating 
-          ? "rounded-[2rem] bg-black/80 backdrop-blur-xl border-none shadow-[0_20px_50px_rgba(0,0,0,0.5)]" 
+          ? "rounded-[2rem] bg-card/80 backdrop-blur-xl border border-border/50 shadow-[0_20px_50px_rgba(0,0,0,0.5)]" 
           : "rounded-[2rem] bg-transparent"
       )}
       onMouseEnter={() => setIsHovered(true)}
@@ -169,7 +169,7 @@ export function PrestigeBox({ badgeLevel: initialBadgeLevel, respectPoints: init
           </div>
 
           <div className="flex flex-col min-w-0 pb-0.5">
-            <h3 className="font-bold text-base text-white tracking-tight truncate drop-shadow-md leading-tight">
+            <h3 className="font-bold text-base text-foreground tracking-tight truncate drop-shadow-md leading-tight">
               {displayName}
             </h3>
             <p className="text-[9px] text-zinc-500 font-medium leading-none">@{username}</p>
@@ -198,7 +198,7 @@ export function PrestigeBox({ badgeLevel: initialBadgeLevel, respectPoints: init
             </div>
             <div className="flex flex-col">
               <span className="text-[8px] uppercase font-bold text-zinc-500 leading-none tracking-widest mb-0.5">Streak</span>
-              <span className="text-sm font-black text-white tabular-nums leading-none">
+              <span className="text-sm font-black text-foreground tabular-nums leading-none">
                 {streak}
               </span>
             </div>

@@ -26,6 +26,7 @@ import { toast } from "sonner"
 interface DashboardData {
   imperial: {
     totalUsers: number
+    totalAxioms: number
     active24h: number
     avgDaily: number
   }
@@ -128,8 +129,9 @@ export function FounderDashboard({ data }: { data: DashboardData }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
         {/* Imperial Stats Card */}
-        <div className="lg:col-span-2 grid grid-cols-3 gap-4">
+        <div className="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
            <StatCard label="Total Legion" value={data.imperial.totalUsers} sub="Total Registered" icon={Users} color="violet" />
+           <StatCard label="Total Axioms" value={data.imperial.totalAxioms} sub="Universal Truths" icon={Sparkles} color="amber" />
            <StatCard label="Active 24h" value={data.imperial.active24h} sub="Live Movements" icon={Activity} color="emerald" />
            <StatCard label="Daily Avg" value={data.imperial.avgDaily} sub="Retention Rate" icon={TrendingUp} color="blue" />
         </div>
@@ -337,6 +339,7 @@ function StatCard({ label, value, sub, icon: Icon, color }: any) {
     violet: "text-violet-400 bg-violet-400/5 border-violet-400/10",
     emerald: "text-emerald-400 bg-emerald-400/5 border-emerald-400/10",
     blue: "text-blue-400 bg-blue-400/5 border-blue-400/10",
+    amber: "text-amber-400 bg-amber-400/5 border-amber-400/10",
   }
 
   return (

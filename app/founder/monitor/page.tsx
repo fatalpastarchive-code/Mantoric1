@@ -48,6 +48,7 @@ export default async function FounderMonitorPage() {
         data={{
           imperial: {
             totalUsers: imperialStats.totalUsers,
+            totalAxioms: imperialStats.totalAxioms || 0,
             active24h: imperialStats.activeUsers24h,
             avgDaily: imperialStats.avgDailyUsers,
           },

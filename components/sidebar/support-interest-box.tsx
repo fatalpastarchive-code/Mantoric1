@@ -90,7 +90,7 @@ export function SupportIntentBox({ className }: SupportIntentBoxProps) {
   }
 
   return (
-    <div className={cn("bg-black rounded-3xl p-6 border border-emerald-900/20 shadow-2xl relative overflow-hidden", className)}>
+    <div className={cn("bg-card rounded-3xl p-6 border border-emerald-900/20 shadow-2xl relative overflow-hidden", className)}>
       {/* Background Micro-Glow: purple + green */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/5 blur-3xl -translate-y-16 translate-x-16" />
       <div className="absolute bottom-0 left-0 w-28 h-28 bg-emerald-500/5 blur-3xl translate-y-10 -translate-x-10" />
@@ -102,7 +102,7 @@ export function SupportIntentBox({ className }: SupportIntentBoxProps) {
             <div className="w-8 h-8 rounded-lg bg-emerald-950/60 border border-emerald-800/30 flex items-center justify-center mb-3">
                <Shield className="h-4 w-4 text-emerald-400" />
             </div>
-            <h3 className="text-[17px] font-bold text-white leading-tight" style={{ fontFamily: "var(--font-cormorant), serif" }}>
+            <h3 className="text-[17px] font-bold text-foreground leading-tight" style={{ fontFamily: "var(--font-cormorant), serif" }}>
               Would you like to support the evolution of Mantoric for your brothers?
             </h3>
             <p className="text-[11px] text-zinc-500 font-medium tracking-wide">
@@ -147,7 +147,7 @@ export function SupportIntentBox({ className }: SupportIntentBoxProps) {
         <div className="space-y-6">
           <div className="flex items-baseline justify-between">
             <div className="flex items-baseline gap-1">
-              <span className="text-3xl font-black text-white tabular-nums">${amount}</span>
+              <span className="text-3xl font-black text-foreground tabular-nums">${amount}</span>
               <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Intent</span>
             </div>
             <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: tier.color }}>
@@ -189,7 +189,7 @@ export function SupportIntentBox({ className }: SupportIntentBoxProps) {
               <Heart className="h-6 w-6 text-emerald-400 fill-emerald-400/20" />
             </div>
           </div>
-          <h3 className="text-lg font-bold text-white uppercase tracking-tighter">Your loyalty is recorded in the archives.</h3>
+          <h3 className="text-lg font-bold text-foreground uppercase tracking-tighter">Your loyalty is recorded in the archives.</h3>
           <p className="text-[10px] text-zinc-500 leading-relaxed font-medium">The 'Early Supporter' badge has been inscribed into your lineage.</p>
         </div>
       )}

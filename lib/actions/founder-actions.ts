@@ -1,7 +1,7 @@
 "use server"
 
 import { auth } from "@clerk/nextjs/server"
-import { articles, users, forumTopics, respects, culturalReviews } from "@/lib/db/collections"
+import { articles, users, forumTopics, respects, culturalReviews, activityLogs } from "@/lib/db/collections"
 import { revalidatePath } from "next/cache"
 import { CAESAR_CLERK_ID } from "@/lib/constants"
 import { ObjectId } from "mongodb"
@@ -188,6 +188,7 @@ export async function purgeUser(clerkId: string) {
 export async function getImperialStats() {
   await checkAuth()
   const usersCol = await users()
+  const logsCol = await activityLogs()
   
   const totalUsers = await usersCol.countDocuments()
   
@@ -196,12 +197,19 @@ export async function getImperialStats() {
     lastActiveAt: { $gte: twentyFourHoursAgo }
   })
 
+  // Imperial Pulse: Axioms from Forum DB
+  const axiomAgg = await logsCol.aggregate([
+    { $group: { _id: null, total: { $sum: "$xpAwarded" } } }
+  ]).toArray()
+  const totalAxioms = axiomAgg[0]?.total || 0
+
   // Simulated average daily users
   const avgDailyUsers = Math.round(activeUsers24h * 0.85)
   
   return {
     totalUsers,
     activeUsers24h,
-    avgDailyUsers
+    avgDailyUsers,
+    totalAxioms
   }
 }

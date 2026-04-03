@@ -221,7 +221,7 @@ export function ThreeColumnLayout({
               <div className="h-8 w-8 overflow-hidden rounded-sm">
                 <Image src="/M.jpg" alt="Mantoric" width={32} height={32} className="object-cover" />
               </div>
-              <span className="text-xl font-bold tracking-tight text-white">Mantoric</span>
+              <span className="text-xl font-bold tracking-tight text-foreground">Mantoric</span>
             </Link>
           </div>
 
@@ -232,7 +232,7 @@ export function ThreeColumnLayout({
               onClick={() => setIsSearchModalOpen(true)}
             >
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground group-hover:text-foreground transition-colors" />
-              <div className="w-full rounded-full bg-white/5 py-2 pl-12 pr-4 text-sm font-light text-muted-foreground border-none transition-all hover:bg-white/10">
+              <div className="w-full rounded-full bg-secondary/80 py-2 pl-12 pr-4 text-sm font-light text-muted-foreground border border-border/50 transition-all hover:bg-secondary">
                 Search Mantoric...
               </div>
             </div>
@@ -255,7 +255,7 @@ export function ThreeColumnLayout({
               )}
               <Link 
                 href={user?.username ? `/profile/${user.username}` : "#"} 
-                className="flex items-center gap-3 hover:bg-white/5 p-1 pr-2 rounded-full transition-all group"
+                className="flex items-center gap-3 hover:bg-accent/50 p-1 pr-2 rounded-full transition-all group"
               >
                 <div className="flex flex-col items-end">
                   <div className="flex items-center gap-2">
@@ -277,7 +277,7 @@ export function ThreeColumnLayout({
                   </div>
                   <span className="text-[10px] text-zinc-500 font-medium leading-none">@{user?.username}</span>
                 </div>
-                <div className="h-9 w-9 rounded-full overflow-hidden border border-white/10 p-0.5 bg-gradient-to-br from-white/10 to-transparent group-hover:border-primary/50 transition-all">
+                <div className="h-9 w-9 rounded-full overflow-hidden border border-border/50 p-0.5 bg-gradient-to-br from-card to-transparent group-hover:border-primary/50 transition-all">
                   <img src={user?.imageUrl} alt="Profile" className="h-full w-full rounded-full object-cover" />
                 </div>
               </Link>
@@ -337,9 +337,9 @@ export function ThreeColumnLayout({
                               key={a.id} 
                               href={`/article/${a.slug}`}
                               onClick={() => setIsSearchModalOpen(false)}
-                              className="group flex flex-col p-4 rounded-3xl hover:bg-white/5 transition-all"
+                              className="group flex flex-col p-4 rounded-3xl hover:bg-accent/30 transition-all border border-transparent hover:border-border/50"
                             >
-                              <p className="text-xl font-semibold group-hover:text-white transition-colors">{a.title}</p>
+                              <p className="text-xl font-semibold group-hover:text-foreground transition-colors">{a.title}</p>
                               <p className="text-sm text-zinc-500 line-clamp-1 font-light">{a.excerpt}</p>
                             </Link>
                           ))}
@@ -356,12 +356,12 @@ export function ThreeColumnLayout({
                               key={p.id} 
                               href={`/profile/${p.username}`}
                               onClick={() => setIsSearchModalOpen(false)}
-                              className="flex items-center gap-4 p-4 rounded-3xl hover:bg-white/5 transition-all"
+                              className="flex items-center gap-4 p-4 rounded-3xl hover:bg-accent/30 transition-all border border-transparent hover:border-border/50"
                             >
-                              <img src={p.avatar} className="h-12 w-12 rounded-2xl object-cover" />
+                              <img src={p.avatar} className="h-12 w-12 rounded-2xl object-cover border border-border/30" />
                               <div>
                                 <p className="font-semibold text-foreground">@{p.username}</p>
-                                <p className="text-sm text-zinc-500 font-light">{p.rank}</p>
+                                <p className="text-sm text-muted-foreground font-light">{p.rank}</p>
                               </div>
                             </Link>
                           ))}

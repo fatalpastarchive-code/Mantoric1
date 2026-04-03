@@ -68,13 +68,13 @@ export function LeaderboardWidget() {
       case 1: return "bg-yellow-500/10 border-yellow-500/30"
       case 2: return "bg-zinc-400/10 border-zinc-400/30"
       case 3: return "bg-amber-600/10 border-amber-600/30"
-      default: return "bg-secondary/30 border-border/30"
+      default: return "bg-card border-border/30"
     }
   }
 
   if (isLoading) {
     return (
-      <div className="p-4 rounded-2xl bg-secondary/20">
+      <div className="rounded-2xl bg-card p-4 border border-border/50 shadow-sm">
         <div className="h-6 w-32 bg-secondary rounded mb-4 animate-pulse" />
         {[1, 2, 3, 4, 5].map(i => (
           <div key={i} className="h-12 bg-secondary rounded mb-2 animate-pulse" />
@@ -84,7 +84,7 @@ export function LeaderboardWidget() {
   }
 
   return (
-    <div className="rounded-2xl bg-secondary/20 overflow-hidden">
+    <div className="rounded-2xl bg-card border border-border/50 shadow-md overflow-hidden">
       <div className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

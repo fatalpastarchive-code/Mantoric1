@@ -36,27 +36,27 @@ export async function follows(): Promise<Collection<Follow>> {
 }
 
 export async function articles(): Promise<Collection<Article>> {
-  const db = await getDb()
+  const db = await getForumDb()
   return db.collection<Article>("articles")
 }
 
 export async function comments(): Promise<Collection<Comment>> {
-  const db = await getDb()
+  const db = await getForumDb()
   return db.collection<Comment>("comments")
 }
 
 export async function likes(): Promise<Collection<Like>> {
-  const db = await getDb()
+  const db = await getForumDb()
   return db.collection<Like>("likes")
 }
 
 export async function activityLogs(): Promise<Collection<ActivityLog>> {
-  const db = await getDb()
+  const db = await getForumDb()
   return db.collection<ActivityLog>("activityLogs")
 }
 
 export async function ratings(): Promise<Collection<Rating>> {
-  const db = await getDb()
+  const db = await getForumDb()
   return db.collection<Rating>("ratings")
 }
 
@@ -83,7 +83,7 @@ export interface RespectRecord {
 }
 
 export async function respects(): Promise<Collection<RespectRecord>> {
-  const db = await getDb()
+  const db = await getForumDb()
   return db.collection<RespectRecord>("respects")
 }
 

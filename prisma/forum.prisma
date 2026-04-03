@@ -1,0 +1,113 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("FORUM_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/forum"
+}
+
+model ForumTopic {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  content          String
+  authorId         String   @db.ObjectId
+  authorName       String?
+  category         String
+  tags             String[]
+  imageUrl         String?
+  type             String   // GENERAL, ARTICLE_REF, CULTURE_REF
+  relatedCultureId String?  @db.ObjectId
+  relatedArticleId String?  @db.ObjectId
+  views            Int      @default(0)
+  likesCount       Int      @default(0)
+  repliesCount     Int      @default(0)
+  isPinned         Boolean  @default(false)
+  isLocked         Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("forum_topics")
+}
+
+model ForumComment {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  topicId     String   @db.ObjectId
+  authorId    String   @db.ObjectId
+  authorName  String?
+  content     String
+  likesCount  Int      @default(0)
+  isEdited    Boolean  @default(false)
+  isDeleted   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("forum_comments")
+}
+
+model Article {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug          String   @unique
+  title         String
+  excerpt       String
+  content       String
+  imageUrl      String
+  coverImage    String?
+  authorId      String   @db.ObjectId
+  authorName    String?
+  category      String
+  tags          String[]
+  views         Int      @default(0)
+  likesCount    Int      @default(0)
+  commentsCount Int      @default(0)
+  readTime      Int      @default(0)
+  averageRating Float    @default(0)
+  ratingsCount  Int      @default(0)
+  status        String   @default("published")
+  isFeatured    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  publishedAt   DateTime?
+
+  @@map("articles")
+}
+
+model ArticleComment {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  articleId     String   @db.ObjectId
+  authorId      String   @db.ObjectId
+  content       String
+  parentId      String?  @db.ObjectId
+  depth         Int      @default(0)
+  likesCount    Int      @default(0)
+  repliesCount  Int      @default(0)
+  isEdited      Boolean  @default(false)
+  isDeleted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("comments")
+}
+
+model Like {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  targetId   String   @db.ObjectId
+  targetType String   // article, comment
+  createdAt  DateTime @default(now())
+
+  @@map("likes")
+}
+
+model Interaction {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  action     String   // like, comment, read
+  targetId   String?  @db.ObjectId
+  targetType String?
+  xpAwarded  Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@map("activity_logs")
+}

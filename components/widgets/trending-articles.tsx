@@ -72,7 +72,7 @@ export function TrendingArticlesWidget({ category, limit = 3 }: TrendingArticles
 
   if (loading) {
     return (
-      <div className="rounded-[2rem] bg-white/5 p-4 backdrop-blur-md border-none">
+      <div className="rounded-[2rem] bg-card p-4 backdrop-blur-md border border-border/30">
         <div className="flex items-center gap-3 mb-4">
           <div className="h-5 w-5 rounded-full bg-zinc-800 animate-pulse" />
           <div className="h-4 w-32 bg-zinc-800 animate-pulse rounded" />
@@ -94,7 +94,7 @@ export function TrendingArticlesWidget({ category, limit = 3 }: TrendingArticles
 
   if (articles.length === 0) {
     return (
-      <div className="rounded-[2rem] bg-white/5 p-4 backdrop-blur-md border-none">
+      <div className="rounded-[2rem] bg-card p-4 backdrop-blur-md border border-border/30">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-1 rounded-full bg-orange-500/10">
             <Flame className="h-3.5 w-3.5 text-orange-500 fill-orange-500/20" />
@@ -109,7 +109,7 @@ export function TrendingArticlesWidget({ category, limit = 3 }: TrendingArticles
   }
 
   return (
-    <div className="rounded-3xl bg-white/5 p-4 backdrop-blur-md border-none">
+    <div className="rounded-3xl bg-card p-4 backdrop-blur-md border border-border/30 shadow-lg">
       <div className="flex items-center gap-3 mb-4">
         <div className="p-1 rounded-full bg-orange-500/10">
           <Flame className="h-3.5 w-3.5 text-orange-500 fill-orange-500/30" />
@@ -136,7 +136,7 @@ export function TrendingArticlesWidget({ category, limit = 3 }: TrendingArticles
                   {article.category}
                 </span>
               </div>
-              <h4 className="text-[13px] font-bold text-white line-clamp-1 leading-tight group-hover:text-orange-400 transition-colors">
+              <h4 className="text-[13px] font-bold text-foreground line-clamp-1 leading-tight group-hover:text-orange-400 transition-colors">
                 {article.title}
               </h4>
               <div className="mt-1 flex items-center gap-2.5 text-[10px] text-zinc-500 font-medium">

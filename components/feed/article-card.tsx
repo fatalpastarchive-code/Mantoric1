@@ -173,7 +173,7 @@ export function ArticleCard({
       tabIndex={0}
       onClick={handleCardClick}
       onKeyDown={handleCardKeyDown}
-      className="block cursor-pointer hover:bg-white/5 transition-all duration-300 rounded-3xl"
+      className="block cursor-pointer hover:bg-accent/40 transition-all duration-300 rounded-3xl border border-transparent hover:border-border/30 shadow-sm hover:shadow-md"
     >
       <div className="flex flex-col gap-5 p-8 md:p-10">
         {/* Author Header */}
@@ -229,7 +229,7 @@ export function ArticleCard({
               </div>
             </div>
           </HoverProfileCard>
-          <Badge variant="outline" className="text-[10px] opacity-50 font-medium border-none">{category}</Badge>
+          <Badge variant="outline" className="text-[10px] opacity-70 font-medium border-border/30 bg-muted/30">{category}</Badge>
         </div>
 
         {/* Content Section */}

@@ -69,17 +69,17 @@ export function DailyAxiom() {
   if (!axiom) return null
 
   return (
-    <div className="rounded-3xl bg-white/5 p-4 backdrop-blur-md border-none">
+    <div className={cn("bg-card rounded-3xl p-6 border border-border/30 shadow-2xl relative overflow-hidden", className)}>
       <div className="flex items-center gap-3 mb-3">
         <Sparkles className="h-4 w-4 text-yellow-500 fill-yellow-500/20" />
-        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">Daily Axiom</span>
+        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Daily Axiom</span>
       </div>
-      <p className="text-[14px] font-bold leading-snug text-white tracking-tight mb-3 italic">
+      <p className="text-[14px] font-bold leading-snug text-foreground tracking-tight mb-3 italic">
         "{axiom.text}"
       </p>
-      <div className="flex items-center justify-between border-t border-white/5 pt-2">
-        <span className="text-xs text-zinc-500 font-medium">— {axiom.author}</span>
-        <span className="text-[9px] px-2 py-0.5 rounded-full bg-black/40 text-zinc-500 font-bold uppercase tracking-widest border border-white/5">
+      <div className="flex items-center justify-between border-t border-border/30 pt-2">
+        <span className="text-xs text-muted-foreground font-medium">— {axiom.author}</span>
+        <span className="text-[9px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-bold uppercase tracking-widest border border-border/30">
           {axiom.category}
         </span>
       </div>

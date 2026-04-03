@@ -9,25 +9,8 @@ import { MongoClient, type Db } from "mongodb"
 
 function normalizeMongoUri(uri: string): string {
   let url = uri.trim()
-
-  const mongodbPrefix = "mongodb://"
-  const mongodbSrvPrefix = "mongodb+srv://"
-
-  const isStandard = url.startsWith(mongodbPrefix)
-  const isSrv = url.startsWith(mongodbSrvPrefix)
-
-  if (isStandard && !isSrv) {
-    // Check if a port is present in the authority segment (e.g. host:27017)
-    const rest = url.slice(mongodbPrefix.length)
-    const authority = rest.split(/[/?]/)[0]
-    const hasPort = authority.includes(":")
-
-    // Only auto-upgrade to SRV if there is NO explicit port
-    // (SRV URIs must not contain a port in the authority)
-    if (!hasPort) {
-      url = mongodbSrvPrefix + rest
-    }
-  }
+  // Standard connection strings (shards with ports) should NOT be auto-upgraded to SRV.
+  // We only ensure the URI is trimmed and has basic params.
 
   // Ensure retryable writes and majority write concern for better failover handling
   if (!url.includes("retryWrites=")) {
@@ -45,12 +28,12 @@ declare global {
 }
 
 function getClientPromise(): Promise<MongoClient> {
-  const rawMongoUri = process.env.MONGODB_URI
+  const rawMongoUri = process.env.MAIN_DATABASE_URL || process.env.MONGODB_URI
   const MONGODB_URI = rawMongoUri ? normalizeMongoUri(rawMongoUri) : undefined
 
   if (!MONGODB_URI) {
     throw new Error(
-      "Please define the MONGODB_URI environment variable in .env.local"
+      "Please define the MAIN_DATABASE_URL environment variable in .env.local"
     )
   }
 
@@ -81,15 +64,15 @@ export async function getDb(): Promise<Db> {
 // ============================================
 // FORUM/CULTURE CLUSTER (Separate MongoDB)
 // ============================================
-const FORUM_MONGODB_URI = "mongodb+srv://forumdb:forumsifre@forum.bns5btn.mongodb.net/?appName=forum"
-
-declare global {
-  // eslint-disable-next-line no-var
-  var _forumMongoClientPromise: Promise<MongoClient> | undefined
-}
-
 function getForumClientPromise(): Promise<MongoClient> {
-  const MONGODB_URI = normalizeMongoUri(FORUM_MONGODB_URI)
+  const rawMongoUri = process.env.FORUM_DATABASE_URL
+  const MONGODB_URI = rawMongoUri ? normalizeMongoUri(rawMongoUri) : undefined
+
+  if (!MONGODB_URI) {
+    throw new Error(
+      "Please define the FORUM_DATABASE_URL environment variable in .env.local"
+    )
+  }
 
   if (process.env.NODE_ENV === "development") {
     if (!globalThis._forumMongoClientPromise) {
@@ -105,17 +88,14 @@ function getForumClientPromise(): Promise<MongoClient> {
 
 /**
  * Returns the forum/culture database instance.
- * Used for forumTopics, forumComments, and culturalReviews collections.
- * Falls back to main database if forum cluster is unreachable.
+ * Strictly isolated: If the Forum DB fails, it throws a connection error.
  */
 export async function getForumDb(): Promise<Db> {
   try {
     const client = await getForumClientPromise()
     return client.db("forum")
   } catch (error) {
-    console.warn("[getForumDb] Forum cluster connection failed, falling back to main database:", error)
-    // Fallback to main database
-    const client = await getClientPromise()
-    return client.db()
+    console.error("[CRITICAL] Forum Database Connection Error:", error)
+    throw new Error("Forum Connection Error: Unable to connect to the forum/culture cluster.")
   }
 }

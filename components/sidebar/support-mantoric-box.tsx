@@ -32,7 +32,7 @@ export function SupportMantoricBox({ className }: SupportMantoricBoxProps) {
 
   return (
     <div className={cn(
-      "relative overflow-hidden rounded-2xl bg-zinc-950/50 border border-zinc-900/50 p-4 backdrop-blur-sm",
+      "relative overflow-hidden rounded-2xl bg-card/50 border border-border/50 p-4 backdrop-blur-sm",
       className
     )}>
       <div className="relative space-y-3">
@@ -43,7 +43,7 @@ export function SupportMantoricBox({ className }: SupportMantoricBoxProps) {
           </h3>
         </div>
 
-        <p className="text-xs font-bold text-zinc-200 leading-snug pr-4">
+        <p className="text-xs font-bold text-foreground leading-snug pr-4">
           Would you contribute to Mantoric&apos;s independent growth? (min. 10$)
         </p>
 
@@ -51,14 +51,14 @@ export function SupportMantoricBox({ className }: SupportMantoricBoxProps) {
           <div className="flex gap-2 pt-1">
             <button
               onClick={() => handleVote(true)}
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black font-black text-[10px] uppercase transition-all shadow-lg shadow-white/5"
+              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-primary text-primary-foreground hover:opacity-90 font-black text-[10px] uppercase transition-all shadow-lg"
             >
               <Check className="h-3 w-3" />
               Yes
             </button>
             <button
               onClick={() => handleVote(false)}
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white font-black text-[10px] uppercase border border-zinc-800 transition-all"
+              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-muted hover:bg-accent text-muted-foreground hover:text-foreground font-black text-[10px] uppercase border border-border transition-all"
             >
               <X className="h-3 w-3" />
               No

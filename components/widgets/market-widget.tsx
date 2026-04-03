@@ -80,7 +80,7 @@ export function MarketWidget() {
   }
 
   return (
-    <div className="rounded-2xl bg-gradient-to-br from-emerald-950/20 to-zinc-900/50 p-4 border border-emerald-500/20 backdrop-blur-sm">
+    <div className="rounded-2xl bg-card p-4 border border-emerald-500/20 backdrop-blur-sm shadow-xl">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="p-1.5 rounded-lg bg-emerald-500/20">

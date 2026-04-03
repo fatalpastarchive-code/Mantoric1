@@ -38,7 +38,7 @@ export function BestEntriesWidget() {
 
   if (loading) {
     return (
-      <div className="rounded-3xl bg-zinc-950/50 p-6 border border-zinc-900/50 backdrop-blur-sm">
+      <div className="rounded-3xl bg-card/50 p-6 border border-border/50 backdrop-blur-sm shadow-xl">
         <div className="h-5 w-32 bg-zinc-900 animate-pulse rounded mb-6" />
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
@@ -53,11 +53,11 @@ export function BestEntriesWidget() {
   }
 
   return (
-    <div className="rounded-3xl bg-zinc-950/50 p-6 border border-zinc-900/50 backdrop-blur-sm shadow-xl">
+    <div className="rounded-3xl bg-card/50 p-6 border border-border/50 backdrop-blur-sm shadow-xl">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <TrendingUp className="h-4 w-4 text-purple-400" />
-          <h3 className="text-sm font-black uppercase tracking-widest text-white">Best Entries</h3>
+          <h3 className="text-sm font-black uppercase tracking-widest text-foreground">Best Entries</h3>
         </div>
       </div>
 
@@ -71,7 +71,7 @@ export function BestEntriesWidget() {
             <div className="flex items-start gap-3">
               <span className="text-xs font-black text-zinc-700 mt-0.5">0{index + 1}</span>
               <div className="flex-1 min-w-0">
-                <h4 className="text-sm font-bold text-zinc-200 group-hover:text-purple-400 transition-colors line-clamp-2 leading-snug">
+                <h4 className="text-sm font-bold text-foreground group-hover:text-purple-400 transition-colors line-clamp-2 leading-snug">
                   {entry.title}
                 </h4>
                 <div className="flex items-center gap-3 mt-1.5">
@@ -106,7 +106,7 @@ export function BestEntriesWidget() {
 
       <Link 
         href="/forum" 
-        className="mt-6 flex items-center justify-center w-full py-2.5 rounded-xl bg-zinc-900/50 border border-zinc-800 text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all"
+        className="mt-6 flex items-center justify-center w-full py-2.5 rounded-xl bg-muted border border-border text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
       >
         View All Arena
       </Link>

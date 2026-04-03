@@ -71,7 +71,7 @@ export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
   const { user, isSignedIn } = useUser()
 
   return (
-    <nav className="flex flex-col h-full w-full bg-black py-0 pr-6 overflow-hidden">
+    <nav className="flex flex-col h-full w-full bg-background py-0 pr-6 overflow-hidden">
       {/* Scrollable Top Content */}
       <div className="flex-1 flex flex-col gap-4 overflow-y-auto no-scrollbar">
         {/* Main Navigation */}
@@ -88,8 +88,8 @@ export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
                 className={cn(
                   "flex items-center gap-4 rounded-3xl px-2 py-2 text-[18px] transition-all duration-200 w-full group",
                   isActive
-                    ? "text-white font-medium"
-                    : "text-white/70 font-medium hover:text-white"
+                    ? "text-foreground font-medium"
+                    : "text-foreground/70 font-medium hover:text-foreground"
                 )}
               >
                 <item.icon 
@@ -118,8 +118,8 @@ export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
                 className={cn(
                   "flex items-center gap-4 rounded-3xl px-2 py-1.5 text-[16px] transition-all duration-200 w-full group",
                   isActive
-                    ? "text-white font-medium"
-                    : "text-white/70 font-medium hover:text-white"
+                    ? "text-foreground font-medium"
+                    : "text-foreground/70 font-medium hover:text-foreground"
                 )}
               >
                   <Icon 
@@ -134,10 +134,10 @@ export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
       </div>
 
       {/* Fixed Bottom Section (Always Visible) */}
-      <div className="flex flex-col gap-1 w-full mt-2 pt-2 border-t border-white/5 bg-black">
+      <div className="flex flex-col gap-1 w-full mt-2 pt-2 border-t border-border/5 bg-background">
         <Link
           href="/help"
-          className="flex items-center gap-4 rounded-3xl px-2 py-2 text-[16px] font-medium text-white/70 hover:text-white transition-all w-full group"
+          className="flex items-center gap-4 rounded-3xl px-2 py-2 text-[16px] font-medium text-foreground/70 hover:text-foreground transition-all w-full group"
         >
           <HelpCircle className="h-6 w-6 shrink-0 stroke-[1.5px] group-hover:stroke-[2px]" />
           <span>Help Center</span>
@@ -145,7 +145,7 @@ export function LeftSidebar({ activeCategory }: LeftSidebarProps) {
         
         <Link
           href="/"
-          className="flex items-center gap-4 rounded-3xl px-2 py-2 text-[16px] font-medium text-white/70 hover:text-white transition-all w-full group"
+          className="flex items-center gap-4 rounded-3xl px-2 py-2 text-[16px] font-medium text-foreground/70 hover:text-foreground transition-all w-full group"
         >
           <div className="h-6 w-6 flex items-center justify-center shrink-0 overflow-hidden rounded-sm">
             <Image src="/M.jpg" alt="Mantoric" width={24} height={24} className="object-cover" />

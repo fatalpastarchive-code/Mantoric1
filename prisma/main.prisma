@@ -1,0 +1,83 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("MAIN_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/main"
+}
+
+model User {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId           String?  @unique
+  email             String   @unique
+  name              String?
+  image             String?
+  emailVerified     DateTime?
+  username          String?  @unique
+  passwordHash      String?
+  displayName       String?
+  avatar            String?
+  bannerUrl         String?
+  bio               String?
+  statusNote        String?
+  
+  followersCount    Int      @default(0)
+  followingCount    Int      @default(0)
+  respectPoints     Int      @default(0)
+  respectCapacity   Int      @default(1)
+  lastRespectGivenAt DateTime?
+  
+  isPostBanned      Boolean  @default(false)
+  hasInteractedWithDonation Boolean @default(false)
+  donationIntentAmount Float?
+  donationChoice    String?
+  
+  rank              String   @default("Newbie")
+  badgeLevel        String   @default("Newbie")
+  badges            String[]
+  streak            Int      @default(0)
+  lastAxiomReadAt   DateTime?
+  
+  xp                Int?
+  level             Int      @default(1)
+  reputation        Int?
+  hype              Int?
+  
+  interests         String[]
+  onboardingCompleted Boolean @default(false)
+  
+  unlockedThemes    String[]
+  activeTheme       String   @default("default")
+
+  isPremium         Boolean  @default(false)
+  subscriptionTier  String?
+  
+  articlesRead      Int      @default(0)
+  commentsCount     Int      @default(0)
+  likesGiven        Int      @default(0)
+  likesReceived     Int      @default(0)
+  
+  role              String   @default("CITIZEN")
+  isVerified        Boolean  @default(false)
+  isVerifiedExpert  Boolean  @default(false)
+  expertField       String?
+  verificationCode  String?
+  verificationCodeExpiresAt DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastActiveAt      DateTime @default(now())
+
+  @@map("users")
+}
+
+model GlobalSettings {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("global_settings")
+}

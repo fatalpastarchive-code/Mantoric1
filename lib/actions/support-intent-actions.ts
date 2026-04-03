@@ -1,7 +1,7 @@
 "use server"
 
 import { auth, currentUser } from "@clerk/nextjs/server"
-import { supportIntents, platformStats, users } from "@/lib/db/collections"
+import { supportIntents, platformStats, users, activityLogs } from "@/lib/db/collections"
 import { revalidatePath } from "next/cache"
 
 export interface SupportIntentInput {
@@ -162,13 +162,24 @@ export async function getSupportIntentAggregates(): Promise<{
 
 export async function getPlatformStats(): Promise<{ success: boolean; stats?: any; error?: string }> {
   try {
-    const col = await platformStats()
+    const colRaw = await platformStats()
+    const usersCol = await users()
+    const logsCol = await activityLogs()
     
-    let stats = await col.findOne({ _id: "main" })
+    let stats = await colRaw.findOne({ _id: "main" })
+    
+    // Imperial Pulse: Stats from both databases
+    const totalUsers = await usersCol.countDocuments({})
+    
+    // Sum total axioms (XP awarded in forum logs)
+    const axiomAgg = await logsCol.aggregate([
+      { $group: { _id: null, total: { $sum: "$xpAwarded" } } }
+    ]).toArray()
+    const totalAxioms = axiomAgg[0]?.total || 0
     
     if (!stats) {
       // Initialize default stats
-      await col.insertOne({
+      await colRaw.insertOne({
         _id: "main",
         totalViews: 0,
         totalRespects: 0,
@@ -176,7 +187,7 @@ export async function getPlatformStats(): Promise<{ success: boolean; stats?: an
         updatedAt: new Date(),
       } as any)
       
-      stats = await col.findOne({ _id: "main" })
+      stats = await colRaw.findOne({ _id: "main" })
     }
 
     return { 
@@ -185,6 +196,8 @@ export async function getPlatformStats(): Promise<{ success: boolean; stats?: an
         totalViews: stats?.totalViews || 0,
         totalRespects: stats?.totalRespects || 0,
         activeUsers: stats?.activeUsers || 0,
+        totalUsers,
+        totalAxioms,
         updatedAt: stats?.updatedAt instanceof Date 
           ? stats.updatedAt.toISOString() 
           : stats?.updatedAt,
